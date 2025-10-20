@@ -1,0 +1,39 @@
+HTTrack3.49-2+htsswf+htsjava launched on Mon, 20 Oct 2025 16:09:36 at https://htmldemo.net/koparion/index.html +*.png +*.gif +*.jpg +*.jpeg +*.css +*.js -ad.doubleclick.net/* -mime:application/foobar
+(winhttrack -qwC2%Ps2u1%s%uN0%I0p3DaK0H0%kf2A25000%f#f -F "Mozilla/4.5 (compatible; HTTrack 3.0x; Windows 98)" -%F "<!-- Mirrored from %s%s by HTTrack Website Copier/3.x [XR&CO'2014], %s -->" -%l "en, *" https://htmldemo.net/koparion/index.html -O1 "C:\Users\dungb\Downloads\template" +*.png +*.gif +*.jpg +*.jpeg +*.css +*.js -ad.doubleclick.net/* -mime:application/foobar )
+
+Information, Warnings and Errors reported for this mirror:
+note:	the hts-log.txt file, and hts-cache folder, may contain sensitive information,
+	such as username/password authentication for websites mirrored in this project
+	do not share these files/folders if you want these information to remain private
+
+16:10:06	Error: 	"Bad Request" (400) at link https://www.googletagmanager.com/gtm.js?id= (from https://htmldemo.net/koparion/index.html)
+16:10:53	Error: 	"Forbidden" (403) at link https://s3.envato.com/files/237139625/Preview.__large_preview.png (from https://htmldemo.net/koparion/index.html)
+16:10:53	Error: 	"Forbidden" (403) at link https://s3.envato.com/files/236854570/preview.__large_preview.png (from https://htmldemo.net/koparion/index.html)
+16:10:53	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/p2/fonts/glyphicons-halflings-regular.eot (from https://htmldemo.net/koparion/p2/css/bootstrap.min.css)
+16:10:53	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/p2/fonts/glyphicons-halflings-regular.eot? (from https://htmldemo.net/koparion/p2/css/bootstrap.min.css)
+16:10:53	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/p2/fonts/glyphicons-halflings-regular.woff2 (from https://htmldemo.net/koparion/p2/css/bootstrap.min.css)
+16:10:53	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/p2/fonts/glyphicons-halflings-regular.woff (from https://htmldemo.net/koparion/p2/css/bootstrap.min.css)
+16:10:53	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/p2/fonts/glyphicons-halflings-regular.ttf (from https://htmldemo.net/koparion/p2/css/bootstrap.min.css)
+16:10:53	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/p2/fonts/glyphicons-halflings-regular.svg (from https://htmldemo.net/koparion/p2/css/bootstrap.min.css)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/product-details (from https://htmldemo.net/koparion/koparion/index-3.html)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/shop-grid-2-col.html (from https://htmldemo.net/koparion/koparion/index-3.html)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/shop-grid-3-col.html (from https://htmldemo.net/koparion/koparion/index-3.html)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/shop-grid-6-col.html (from https://htmldemo.net/koparion/koparion/index-3.html)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/shop-grid-box.html (from https://htmldemo.net/koparion/koparion/index-3.html)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/shop-list-2-col.html (from https://htmldemo.net/koparion/koparion/index-3.html)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/shop-list-3-col.html (from https://htmldemo.net/koparion/koparion/index-3.html)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/shop-list-box.html (from https://htmldemo.net/koparion/koparion/index-3.html)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/product-details-sticky.html (from https://htmldemo.net/koparion/koparion/index-3.html)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/product-details-gallery.html (from https://htmldemo.net/koparion/koparion/index-3.html)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/product-details-fixed-img.html (from https://htmldemo.net/koparion/koparion/index-3.html)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/login-register.html (from https://htmldemo.net/koparion/koparion/my-account.html)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/css/owl.video.play.png (from https://htmldemo.net/koparion/koparion/css/owl.carousel.css)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/fonts/flexslider-icon.eot (from https://htmldemo.net/koparion/koparion/css/flexslider.css)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/fonts/flexslider-icon.eot? (from https://htmldemo.net/koparion/koparion/css/flexslider.css)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/fonts/flexslider-icon.woff (from https://htmldemo.net/koparion/koparion/css/flexslider.css)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/fonts/flexslider-icon.ttf (from https://htmldemo.net/koparion/koparion/css/flexslider.css)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/fonts/flexslider-icon.svg (from https://htmldemo.net/koparion/koparion/css/flexslider.css)
+16:11:02	Error: 	"Not Found" (404) at link https://htmldemo.net/koparion/koparion/css/chosen-sprite@2x.png (from https://htmldemo.net/koparion/koparion/css/chosen.min.css)
+
+HTTrack Website Copier/3.49-2 mirror complete in 1 minutes 26 seconds : 258 links scanned, 229 files written (12459790 bytes overall) [9042528 bytes received at 105145 bytes/sec], 4792546 bytes transferred using HTTP compression in 96 files, ratio 24%, 28.6 requests per connection
+(28 errors, 0 warnings, 0 messages)
