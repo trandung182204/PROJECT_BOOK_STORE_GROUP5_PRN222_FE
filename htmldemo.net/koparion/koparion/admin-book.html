@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin - Book Management</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -15,6 +15,12 @@
         <a href="admin-book-add.html" class="btn btn-success me-2">➕ Add New Book</a>
         <a href="index.html" class="btn btn-secondary">← Back to Home</a>
       </div>
+    </div>
+
+    <!-- Search -->
+    <div class="input-group mb-3">
+      <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search by title">
+      <button class="btn btn-outline-primary" onclick="applySearch()">Search</button>
     </div>
 
     <!-- Book List -->
@@ -45,75 +51,125 @@
             <tr><td colspan="15">Loading...</td></tr>
           </tbody>
         </table>
+
+        <!-- Pagination -->
+        <nav>
+          <ul class="pagination justify-content-center" id="pagination"></ul>
+        </nav>
       </div>
     </div>
   </div>
 
   <script>
-    const apiUrl = "https://localhost:7108/api/Book"; // ⚠️ chỉnh port nếu khác
+    const apiUrl = "https://localhost:7108/api/Book"; // ⚠️ Update port if needed
+    let allBooks = [];
+    let filteredBooks = [];
+    let currentPage = 1;
+    const pageSize = 10;
 
+    // Load all books
     async function loadBooks() {
       try {
         const res = await fetch(apiUrl);
         const result = await res.json();
-        const books = result.data || result; // hỗ trợ kiểu trả về dạng object hoặc list
-        const tbody = document.getElementById("bookTableBody");
-        tbody.innerHTML = "";
-
-        if (!books || books.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="15">No books found.</td></tr>`;
-          return;
-        }
-
-        books.forEach(book => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${book.code}</td>
-            <td>${book.title}</td>
-            <td>${book.author ?? ""}</td>
-            <td>${book.publisher ?? ""}</td>
-            <td>${book.isbn ?? ""}</td>
-            <td>${book.publicationYear ?? ""}</td>
-            <td>${book.pageCount ?? ""}</td>
-            <td>${book.language ?? ""}</td>
-            <td>${book.price?.toLocaleString() ?? "0"} $</td>
-            <td>${book.discountPrice?.toLocaleString() ?? "0"} $</td>
-            <td>${book.stockQuantity ?? 0}</td>
-            <td>
-              <img src="${book.thumbnailUrl || 'https://via.placeholder.com/60'}" width="60" class="rounded shadow-sm">
-            </td>
-            <td>
-              <span class="badge bg-${book.status === 'ACTIVE' ? 'success' : 'secondary'}">${book.status ?? 'N/A'}</span>
-            </td>
-            <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-              ${book.description ?? ""}
-            </td>
-            <td>
-              <a href="admin-book-add.html?code=${book.code}" class="btn btn-sm btn-warning">Edit</a>
-              <button class="btn btn-danger btn-sm" onclick="deleteBook(${book.id})">Delete</button>
-            </td>
-          `;
-          tbody.appendChild(row);
-        });
+        allBooks = result.data || result;
+        filteredBooks = allBooks;
+        renderBooks();
       } catch (err) {
         console.error("❌ Error loading books:", err);
         alert("⚠️ Failed to load book list. Check console for details.");
       }
     }
 
-    async function deleteBook(code) {
+    // Render books based on current page and search
+    function renderBooks() {
+      const tbody = document.getElementById("bookTableBody");
+      tbody.innerHTML = "";
+
+      if (!filteredBooks || filteredBooks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="15">No books found.</td></tr>`;
+        document.getElementById("pagination").innerHTML = "";
+        return;
+      }
+
+      const start = (currentPage - 1) * pageSize;
+      const paginatedBooks = filteredBooks.slice(start, start + pageSize);
+
+      paginatedBooks.forEach(book => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${book.code}</td>
+          <td>${book.title}</td>
+          <td>${book.author ?? ""}</td>
+          <td>${book.publisher ?? ""}</td>
+          <td>${book.isbn ?? ""}</td>
+          <td>${book.publicationYear ?? ""}</td>
+          <td>${book.pageCount ?? ""}</td>
+          <td>${book.language ?? ""}</td>
+          <td>${book.price?.toLocaleString() ?? "0"} $</td>
+          <td>${book.discountPrice?.toLocaleString() ?? "0"} $</td>
+          <td>${book.stockQuantity ?? 0}</td>
+          <td><img src="${book.thumbnailUrl || 'https://via.placeholder.com/60'}" width="60" class="rounded shadow-sm"></td>
+          <td><span class="badge bg-${book.status === 'ACTIVE' ? 'success' : 'secondary'}">${book.status ?? 'N/A'}</span></td>
+          <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${book.description ?? ""}</td>
+          <td>
+            <a href="admin-book-edit.html?code=${book.code}" class="btn btn-sm btn-warning">Edit</a>
+            <button class="btn btn-danger btn-sm" onclick="deleteBook(${book.id})">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      renderPagination();
+    }
+
+    // Pagination rendering
+    function renderPagination() {
+      const totalPages = Math.ceil(filteredBooks.length / pageSize);
+      const pagination = document.getElementById("pagination");
+      pagination.innerHTML = "";
+
+      if (totalPages <= 1) return;
+
+      for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement("li");
+        li.className = `page-item ${i === currentPage ? "active" : ""}`;
+        li.innerHTML = `<button class="page-link" onclick="goToPage(${i})">${i}</button>`;
+        pagination.appendChild(li);
+      }
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      renderBooks();
+    }
+
+    // Search filter
+    function applySearch() {
+      const keyword = document.getElementById("searchInput").value.toLowerCase().trim();
+      filteredBooks = allBooks.filter(b =>
+        b.title?.toLowerCase().includes(keyword) 
+      );
+      currentPage = 1;
+      renderBooks();
+    }
+
+    // Delete book
+    async function deleteBook(id) {
       if (!confirm("Are you sure to delete this book?")) return;
       try {
-        const res = await fetch(`${apiUrl}/${code}`, { method: "DELETE" });
+        const res = await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
         if (res.ok) {
           alert("✅ Book deleted successfully!");
           loadBooks();
         } else {
+          const errMsg = await res.text();
+          console.error(errMsg);
           alert("❌ Failed to delete book.");
         }
       } catch (err) {
         console.error(err);
-        alert("Error deleting book.");
+        alert("⚠️ Error deleting book.");
       }
     }
 
