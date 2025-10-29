@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Category</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-5">
+    <h2 class="text-success mb-4">➕ Add New Category</h2>
+    <form id="addCategoryForm">
+      <div class="mb-3">
+        <label class="form-label">Category Code</label>
+        <input type="text" id="categoryCode" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Category Name</label>
+        <input type="text" id="categoryName" class="form-control" required>
+      </div>
+      <button type="submit" class="btn btn-success">Save</button>
+      <a href="admin-category.html" class="btn btn-secondary">Back</a>
+    </form>
+  </div>
+
+  <script>
+    const apiUrl = "https://localhost:7108/api/Category";
+
+    document.getElementById("addCategoryForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const data = {
+        categoryCode: document.getElementById("categoryCode").value.trim(),
+        categoryName: document.getElementById("categoryName").value.trim(),
+        isDeleted: false
+      };
+
+      try {
+        const res = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        // ✅ Kiểm tra phản hồi từ API
+        if (!res.ok || result.succeeded === false) {
+          let msg = result.message || "Failed to add category.";
+          if (msg.toLowerCase().includes("exists")) {
+            msg = "⚠️ Category code or name already exists!";
+          }
+          if (msg.toLowerCase().includes("deleted")) {
+            msg = "⚠️ Category was inactive (deleted) and cannot be re-added.";
+          }
+          alert(msg);
+          return;
+        }
+
+        // ✅ Thành công thật sự
+        alert("✅ Category added successfully!");
+        window.location.href = "admin-category.html";
+
+      } catch (err) {
+        console.error(err);
+        alert("⚠️ Error while adding category.");
+      }
+    });
+  </script>
+</body>
+</html>

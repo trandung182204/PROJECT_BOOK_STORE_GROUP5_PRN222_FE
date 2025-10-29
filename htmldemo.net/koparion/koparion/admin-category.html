@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Category Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-4 mb-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="text-primary">🏷️ Category Management</h2>
+      <div>
+        <a href="admin-category-add.html" class="btn btn-success me-2">➕ Add New Category</a>
+        <a href="index.html" class="btn btn-secondary">← Back to Home</a>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="input-group mb-3">
+      <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search by category name">
+      <button class="btn btn-outline-primary" onclick="applySearch()">Search</button>
+    </div>
+
+    <!-- Category List -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white">Category List</div>
+      <div class="card-body table-responsive">
+        <table class="table table-bordered table-hover align-middle text-center">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Category Code</th>
+              <th>Category Name</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="categoryTableBody">
+            <tr><td colspan="5">Loading...</td></tr>
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <nav>
+          <ul class="pagination justify-content-center" id="pagination"></ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = "https://localhost:7108/api/Category";
+    let allCategories = [];
+    let filteredCategories = [];
+    let currentPage = 1;
+    const pageSize = 10;
+
+    // Load all categories
+    async function loadCategories() {
+      try {
+        const res = await fetch(apiUrl);
+        const result = await res.json();
+        allCategories = result.data || result;
+        filteredCategories = allCategories;
+        renderCategories();
+      } catch (err) {
+        console.error("❌ Error loading categories:", err);
+        alert("⚠️ Failed to load category list. Check console for details.");
+      }
+    }
+
+    // Render table
+    function renderCategories() {
+      const tbody = document.getElementById("categoryTableBody");
+      tbody.innerHTML = "";
+
+      if (!filteredCategories || filteredCategories.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5">No categories found.</td></tr>`;
+        document.getElementById("pagination").innerHTML = "";
+        return;
+      }
+
+      const start = (currentPage - 1) * pageSize;
+      const paginated = filteredCategories.slice(start, start + pageSize);
+
+      paginated.forEach((cat, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${start + index + 1}</td>
+          <td>${cat.categoryCode}</td>
+          <td>${cat.categoryName}</td>
+          <td>
+            <span class="badge bg-${cat.isDeleted ? 'secondary' : 'success'}">
+              ${cat.isDeleted ? 'inactive' : 'active'}
+            </span>
+          </td>
+          <td>
+            <a href="admin-category-edit.html?id=${cat.id}" class="btn btn-sm btn-warning">Edit</a>
+            <button class="btn btn-danger btn-sm" onclick="deleteCategory(${cat.id}, ${cat.isDeleted})">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      renderPagination();
+    }
+
+    // Pagination
+    function renderPagination() {
+      const totalPages = Math.ceil(filteredCategories.length / pageSize);
+      const pagination = document.getElementById("pagination");
+      pagination.innerHTML = "";
+
+      if (totalPages <= 1) return;
+
+      for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement("li");
+        li.className = `page-item ${i === currentPage ? "active" : ""}`;
+        li.innerHTML = `<button class="page-link" onclick="goToPage(${i})">${i}</button>`;
+        pagination.appendChild(li);
+      }
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      renderCategories();
+    }
+
+    // Search
+    function applySearch() {
+      const keyword = document.getElementById("searchInput").value.toLowerCase().trim();
+      filteredCategories = allCategories.filter(c =>
+        c.categoryName?.toLowerCase().includes(keyword) ||
+        c.categoryCode?.toLowerCase().includes(keyword)
+      );
+      currentPage = 1;
+      renderCategories();
+    }
+
+    // Delete category (soft delete)
+    async function deleteCategory(id, isDeleted) {
+      if (isDeleted) {
+        alert("⚠️ This category is already inactive (deleted).");
+        return;
+      }
+
+      if (!confirm("Are you sure you want to delete this category?")) return;
+
+      try {
+        const res = await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
+        const result = await res.json();
+
+        if (res.ok && result.succeeded) {
+          alert("✅ Category deleted successfully!");
+          loadCategories();
+        } else if (result.message?.includes("deleted")) {
+          alert("⚠️ This category was already inactive!");
+        } else {
+          alert(`❌ Failed to delete category.\n${result.message || ""}`);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("⚠️ Error deleting category.");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadCategories);
+  </script>
+</body>
+</html>
