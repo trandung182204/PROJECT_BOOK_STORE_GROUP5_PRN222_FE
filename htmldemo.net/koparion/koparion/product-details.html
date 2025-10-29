@@ -448,16 +448,16 @@
 								<div class="flexslider">
 									<ul class="slides">
 										<li data-thumb="img/thum-2/1.jpg">
-											<img src="img/flex/1.jpg" alt="woman" />
+											<img id="bookImage" src="img/flex/1.jpg" alt="book" />
 										</li>
 										<li data-thumb="img/thum-2/4.jpg">
-											<img src="img/flex/5.jpg" alt="woman" />
+											<img src="img/flex/5.jpg" alt="book" />
 										</li>
 										<li data-thumb="img/thum-2/2.jpg">
-											<img src="img/flex/2.jpg" alt="woman" />
+											<img src="img/flex/2.jpg" alt="book" />
 										</li>
 										<li data-thumb="img/thum-2/5.jpg">
-											<img src="img/flex/5.jpg" alt="woman" />
+											<img src="img/flex/5.jpg" alt="book" />
 										</li>
 									</ul>
 								</div>
@@ -465,17 +465,17 @@
 							<div class="col-lg-7 col-md-6 col-12">
 								<div class="product-info-main">
 									<div class="page-title">
-										<h1>Savvy Shoulder Tote</h1>
+										<h1 id="bookTitle">Loading...</h1>
 									</div>
 									<div class="product-info-stock-sku">
-										<span>In stock</span>
+										<span id="bookStatus">Loading...</span>
 										<div class="product-attribute">
 											<span>SKU</span>
-											<span class="value">24-WB05</span>
+											<span class="value" id="bookId"></span>
 										</div>
 									</div>
 									<div class="product-reviews-summary">
-										<div class="rating-summary">
+										<div class="rating-summary" id="bookRating">
 											<a href="#"><i class="fa fa-star"></i></a>
 											<a href="#"><i class="fa fa-star"></i></a>
 											<a href="#"><i class="fa fa-star"></i></a>
@@ -489,8 +489,8 @@
 									</div>
 									<div class="product-info-price">
 										<div class="price-final">
-											<span>$34.00</span>
-											<span class="old-price">$40.00</span>
+											<span id="bookPrice">$0.00</span>
+											<span class="old-price" id="oldPrice"></span>
 										</div>
 									</div>
 									<div class="product-add-form">
@@ -498,7 +498,7 @@
 											<div class="quality-button">
 												<input class="qty" type="number" value="1">
 											</div>
-											<a href="#">Add to cart</a>
+											<a href="#" id="addToCartBtn">Add to cart</a>
 										</form>
 									</div>
 									<div class="product-social-links">
@@ -508,11 +508,9 @@
 											<a href="#"><i class="fa fa-envelope-o"></i></a>
 										</div>
 										<div class="product-addto-links-text">
-											<p>Powerwalking to the gym or strolling to the local coffeehouse, the Savvy
-												Shoulder Tote lets you stash your essentials in sporty style! A
-												top-loading compartment provides quick and easy access to larger items,
-												while zippered pockets on the front and side hold cash, credit cards and
-												phone.</p>
+											<p id="bookDescription">
+												Loading book description...
+											</p>
 										</div>
 									</div>
 								</div>
@@ -1234,7 +1232,52 @@
 
 
 
+	<script>
+        document.addEventListener("DOMContentLoaded", async function() {
+            const params = new URLSearchParams(window.location.search);
+            const bookId = params.get("id");
 
+            if (!bookId) {
+                document.querySelector(".product-main-area").innerHTML = "<p>No book selected.</p>";
+                return;
+            }
+
+            try {
+                // Gọi API
+                const response = await fetch(`http://localhost:5282/api/Book/${bookId}`);
+                if (!response.ok) throw new Error("Failed to load book details");
+
+                const result = await response.json();
+                const book = result.data || result;
+
+                // Fill dữ liệu
+                document.getElementById("bookTitle").textContent = book.title || "Untitled";
+                document.getElementById("bookImage").src = book.thumbnailUrl || "img/no-image.png";
+                document.getElementById("bookPrice").textContent = `$${book.price?.toFixed(2) || "0.00"}`;
+                document.getElementById("bookDescription").textContent = book.description || "No description available.";
+                document.getElementById("bookId").textContent = book.id || "";
+                document.getElementById("bookStatus").textContent = book.status === "ACTIVE" ? "In stock" : "Unavailable";
+
+                // Nếu có giá gốc (giảm giá)
+                if (book.oldPrice && book.oldPrice > book.price) {
+                    document.getElementById("oldPrice").textContent = `$${book.oldPrice.toFixed(2)}`;
+                }
+
+                // Nếu có rating
+                if (book.rating) {
+                    const stars = Math.round(book.rating);
+                    document.getElementById("bookRating").innerHTML =
+                        Array.from({ length: 5 }, (_, i) =>
+                            `<a href="#"><i class="fa fa-star${i < stars ? "" : "-o"}"></i></a>`
+                        ).join("");
+                }
+
+            } catch (error) {
+                console.error(error);
+                document.querySelector(".product-main-area").innerHTML = "<p>Error loading book details.</p>";
+            }
+        });
+    </script>
 
 	<!-- all js here -->
 	<!-- jquery latest version -->
