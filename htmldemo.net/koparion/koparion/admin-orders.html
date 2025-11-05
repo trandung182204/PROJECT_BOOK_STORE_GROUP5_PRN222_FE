@@ -409,19 +409,6 @@
         }
         return res.json();
       }
-      async function getUserFullName(userId) {
-        if (!userId) return "N/A";
-        if (userCache[userId]) return userCache[userId];
-
-        try {
-          const res = await fetchJSON(`${API_USER}/${userId}`);
-          const fullName = res?.data?.fullName || "N/A";
-          userCache[userId] = fullName;
-          return fullName;
-        } catch {
-          return "N/A";
-        }
-      }
       async function loadOrder() {
         try {
           const type = document.getElementById("typeSel").value;

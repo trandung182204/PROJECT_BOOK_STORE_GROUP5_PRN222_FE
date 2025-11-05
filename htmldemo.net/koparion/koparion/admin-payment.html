@@ -337,13 +337,21 @@
         <section class="mb-5">
           <div class="kop-card card">
             <div class="card-header">
-              <!-- <div
+              <div
                 class="d-flex justify-content-between align-items-center flex-wrap gap-3"
               >
                 <div class="d-flex align-items-center gap-2">
                   <h4 class="m-0">Payment Report</h4>
                 </div>
                 <div class="d-flex gap-2 align-items-center">
+                  <select
+                    id="typeSel"
+                    class="form-select form-select-sm"
+                    style="width: 150px"
+                  >
+                    <option value="COD" selected>COD</option>
+                    <option value="VNPAY">VNPAY</option>
+                  </select>
                   <select
                     id="typeSel"
                     class="form-select form-select-sm"
@@ -363,22 +371,23 @@
                     type="date"
                     class="form-control form-control-sm"
                   />
-                  <button class="btn btn-kop btn-sm" onclick="loadOrder()">
+                  <button class="btn btn-kop btn-sm" onclick="loadPayment()">
                     <i class="bi bi-funnel me-1"></i>Filter
                   </button>
                 </div>
-              </div> -->
+              </div>
             </div>
             <div class="card-body">
-              <h2>Danh sách đơn hàng</h2>
-              <table border="1" width="100%" id="orderTable">
+              <h2>Danh sách giao dịch</h2>
+              <table border="1" width="100%" id="paymentTable">
                 <thead>
                   <tr>
                     <th>ID</th>
+                    <th>Đơn hàng</th>
                     <th>Tên khách hàng</th>
-                    <th>Trạng thái đơn hàng</th>
-                    <th>Địa chỉ giao hàng</th>
-                    <th>Ngày tạo</th>
+                    <th>Phương thức</th>
+                    <th>Trạng thái</th>
+                    <th>Thời gian trả</th>
                     <th>Tổng tiền (VNĐ)</th>
                   </tr>
                 </thead>
@@ -408,47 +417,35 @@
         }
         return res.json();
       }
-      async function getUserFullName(userId) {
-        if (!userId) return "N/A";
-        if (userCache[userId]) return userCache[userId];
-
-        try {
-          const res = await fetchJSON(`${API_USER}/${userId}`);
-          const fullName = res?.data?.fullName || "N/A";
-          userCache[userId] = fullName;
-          return fullName;
-        } catch {
-          return "N/A";
-        }
-      }
       async function loadPayment() {
         try {
-          //   const type = document.getElementById("typeSel").value;
-          //   const from = document.getElementById("fromDate").value || null;
-          //   const to = document.getElementById("toDate").value || null;
+          const type = document.getElementById("typeSel").value;
+          const from = document.getElementById("fromDate").value || null;
+          const to = document.getElementById("toDate").value || null;
 
           const url = new URL(`${API_BASE}`);
-          //   if (type) url.searchParams.set("type", type);
-          //   if (from) url.searchParams.set("from", from);
-          //   if (to) url.searchParams.set("to", to);
+          if (type) url.searchParams.set("type", type);
+          if (from) url.searchParams.set("from", from);
+          if (to) url.searchParams.set("to", to);
 
           const data = await fetchJSON(url.toString());
-          console.log("cadsa" + data);
-          const orders = data.data || [];
-          const tbody = document.querySelector("#orderTable tbody");
+          console.log(data.data + "dsdaw");
+          const payments = data.data || [];
+          console.log(payments + "dsdaw");
+          const tbody = document.querySelector("#paymentTable tbody");
           tbody.innerHTML = "";
 
-          for (const o of orders) {
+          for (const o of payments) {
             const tr = document.createElement("tr");
             const date = new Date(o.createdAt).toLocaleDateString("vi-VN");
-            const fullName = await getUserFullName(o.userId);
             tr.innerHTML = `
                     <td>${o.id}</td>
-                    <td>${fullName} </td>
-                    <td>${o.orderStatus}</td>
-                    <td>${o.shippingAddress}</td>
+                    <td>${o.order.id} </td>
+                    <td>${o.order.user.fullName}</td>
+                    <td>${o.paymentMethod}</td>
+                    <td>${o.status}</td>
                     <td>${date}</td>
-                    <td>${o.totalAmount.toLocaleString("vi-VN")}</td>
+                    <td>${o.amount.toLocaleString("vi-VN")}</td>
                 `;
             tbody.appendChild(tr);
           }
