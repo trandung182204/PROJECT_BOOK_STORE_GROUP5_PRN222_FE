@@ -47,17 +47,11 @@
               <th>Code</th>
               <th>Title</th>
               <th>Author</th>
-              <th>Publisher</th>
-              <th>ISBN</th>
-              <th>Year</th>
-              <th>Pages</th>
-              <th>Language</th>
               <th>Price</th>
               <th>Discount</th>
               <th>Stock</th>
               <th>Thumbnail</th>
               <th>Status</th>
-              <th>Description</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -141,17 +135,11 @@
           <td>${book.code}</td>
           <td>${book.title}</td>
           <td>${book.author ?? ""}</td>
-          <td>${book.publisher ?? ""}</td>
-          <td>${book.isbn ?? ""}</td>
-          <td>${book.publicationYear ?? ""}</td>
-          <td>${book.pageCount ?? ""}</td>
-          <td>${book.language ?? ""}</td>
           <td>${book.price?.toLocaleString() ?? "0"} $</td>
           <td>${book.discountPrice?.toLocaleString() ?? "0"} $</td>
           <td>${book.stockQuantity ?? 0}</td>
           <td><img src="${book.thumbnailUrl || 'https://via.placeholder.com/60'}" width="60" class="rounded shadow-sm"></td>
           <td><span class="badge bg-${book.status?.toLowerCase() === 'active' ? 'success' : 'secondary'}">${book.status ?? 'N/A'}</span></td>
-          <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${book.description ?? ""}</td>
           <td>
             <a href="admin-book-edit.html?id=${book.id}" class="btn btn-sm btn-warning">Edit</a>
             <button class="btn btn-danger btn-sm" onclick="deleteBook(${book.id})">Delete</button>
