@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Koparion • Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- SweetAlert2 + Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Lora:wght@600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --kop-primary:#f1962f;
+      --kop-dark:#111;
+      --kop-muted:#6b7280;
+      --radius:18px;
+      --sidebar-w:260px;
+    }
+    body{background:#f8fafc;font-family:Montserrat,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+
+    /* Topbar */
+    .kop-topbar{ background:var(--kop-dark); color:#fff; border-bottom:4px solid var(--kop-primary); }
+    .kop-brand{ font-weight:700; letter-spacing:.5px }
+    .kop-pill{
+      border-radius:999px; padding:.35rem .9rem; font-weight:600;
+      background:var(--kop-primary); color:#222; border:0;
+    }
+
+    /* Sidebar (offcanvas) */
+    #sidebar{ --bs-offcanvas-width: var(--sidebar-w); }
+    #sidebar .offcanvas-header{ border-bottom:1px solid #eee; }
+    #sidebar .nav-link{ border-radius:10px; font-weight:600; color:#374151; padding:.55rem .75rem; }
+    #sidebar .nav-link:hover{ background:#f3f4f6; color:#111; }
+    #sidebar .nav-link.active{ background:rgba(241,150,47,.16); color:#111; }
+    #sidebar .nav-link i{ width:22px; text-align:center; margin-right:.4rem; color:#f1962f; }
+
+    /* Layout khi >= lg */
+    @media (min-width: 992px){
+      .admin-wrap{ display:flex; }
+      /* FIX: ép offcanvas thành sidebar sticky luôn hiển thị */
+      #sidebar.offcanvas-lg{
+        transform: none !important;
+        visibility: visible !important;
+        position: sticky;
+        top: 0;
+        height: 100dvh;
+        width: var(--sidebar-w);
+        flex: 0 0 var(--sidebar-w);
+        border-right:1px solid #eee;
+      }
+      .content{ flex:1; padding:1.25rem 1rem; }
+      .offcanvas-backdrop{ display:none !important; }
+    }
+
+    /* Cards */
+    .kop-card{ border:0; border-radius:var(--radius); box-shadow:0 8px 28px rgba(0,0,0,.08); transition:.15s ease; }
+    .kop-card:hover{ transform:translateY(-2px); box-shadow:0 12px 30px rgba(0,0,0,.12); }
+    .kop-card .card-header{ background:#fff; border:0; padding:1rem 1.25rem 0 1.25rem; font-weight:700; color:#111; }
+
+    /* KPI */
+    .kpi-icon{width:46px;height:46px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(241,150,47,.14);color:var(--kop-primary);font-size:1.2rem;flex:0 0 auto;}
+    .kpi-value{font-size:1.9rem;font-weight:800;line-height:1.05;color:#111;white-space:nowrap;letter-spacing:-0.3px;margin-top:.35rem;}
+    .kpi-title{ color:var(--kop-muted); font-size:.92rem; }
+    .kop-badge{ background:rgba(17,17,17,.04); padding:.35rem .6rem; border-radius:8px; font-size:.8rem; }
+    .mini-help{ font-size:.82rem;color:var(--kop-muted) }
+    .kop-footer{ color:#9ca3af }
+
+    /* Tables */
+    .table>thead th{ color:#111; font-weight:700; border-bottom:2px solid #eef2f7 }
+    .table>tbody td{ vertical-align:middle }
+    .table td.money,.table th.money{ text-align:right; white-space:nowrap; }
+
+    /* Buttons / Filters */
+    .btn-kop{ background:var(--kop-primary); color:#222; border:none; font-weight:700; }
+    .btn-kop:hover{ filter:brightness(.95); color:#111 }
+    .filter-chip{ border:1px solid #e5e7eb; border-radius:12px; padding:.4rem .7rem; background:#fff; }
+  </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<header class="kop-topbar py-2">
+  <div class="container-fluid d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-3">
+      <!-- Hamburger (mobile) -->
+      <button class="btn btn-sm btn-outline-light d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
+        <i class="bi bi-list"></i>
+      </button>
+      <span class="kop-brand"><i class="bi bi-graph-up-arrow me-2 text-warning"></i>Admin Dashboard</span>
+      <span class="kop-badge d-none d-md-inline">Book Store</span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <a href="index.html" class="kop-pill text-decoration-none d-none d-sm-inline"><i class="bi bi-house-door me-1"></i> Back to Shop</a>
+    </div>
+  </div>
+</header>
+
+<div class="admin-wrap">
+  <!-- SIDEBAR -->
+  <aside class="offcanvas offcanvas-start offcanvas-lg" tabindex="-1" id="sidebar" aria-labelledby="sidebarLabel" data-bs-scroll="true" data-bs-backdrop="false">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="sidebarLabel"><i class="bi bi-speedometer2 me-2 text-warning"></i>Admin Menu</h5>
+      <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <nav class="nav flex-column gap-1">
+        <a id="nav-dashboard" class="nav-link active" href="admin.html"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+        <div class="mt-2 mb-1 small text-uppercase text-muted">Manage</div>
+        <a id="nav-books" class="nav-link" href="admin-books.html"><i class="bi bi-book"></i> Books</a>
+        <a id="nav-users" class="nav-link" href="admin-users.html"><i class="bi bi-people"></i> Users</a>
+        <a id="nav-orders" class="nav-link" href="admin-orders.html"><i class="bi bi-bag-check"></i> Orders</a>
+        <a id="nav-categories" class="nav-link" href="admin-categories.html"><i class="bi bi-tags"></i> Categories</a>
+        <a id="nav-reviews" class="nav-link" href="admin-reviews.html"><i class="bi bi-chat-dots"></i> Reviews</a>
+        <div class="mt-3 mb-1 small text-uppercase text-muted">Analytics</div>
+        <a id="nav-reports" class="nav-link" href="admin-reports.html"><i class="bi bi-graph-up"></i> Reports</a>
+        <a id="nav-deleted" class="nav-link" href="#deleted-section"><i class="bi bi-archive"></i> Deleted / Restore</a>
+        <div class="mt-3 mb-1 small text-uppercase text-muted">System</div>
+        <a id="nav-settings" class="nav-link" href="admin-settings.html"><i class="bi bi-gear"></i> Settings</a>
+        <a class="nav-link" href="signin.html"><i class="bi bi-box-arrow-right"></i> Sign out</a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content container-fluid">
+    <!-- KPI -->
+    <section class="mb-4">
+      <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+        <h3 class="m-0" style="font-family:Lora,serif">Overview</h3>
+        <div class="d-flex gap-2 align-items-center">
+          <span class="mini-help d-none d-md-inline">Realtime from API</span>
+          <button class="btn btn-light filter-chip" onclick="loadSummary()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+        </div>
+      </div>
+      <div class="row g-3" id="summaryRow"></div>
+    </section>
+
+    <!-- Sales -->
+    <section class="mb-5">
+      <div class="kop-card card">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-2">
+              <h4 class="m-0">Sales Report</h4>
+              <span class="kop-badge">Revenue & Orders</span>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+              <select id="typeSel" class="form-select form-select-sm" style="width:150px">
+                <option value="day" selected>By day</option>
+                <option value="month">By month</option>
+              </select>
+              <input id="fromDate" type="date" class="form-control form-control-sm" />
+              <span class="text-muted">–</span>
+              <input id="toDate" type="date" class="form-control form-control-sm" />
+              <button class="btn btn-kop btn-sm" onclick="loadSales()"><i class="bi bi-funnel me-1"></i>Filter</button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <canvas id="salesChart" height="86"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Top lists -->
+    <section class="mb-5">
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="kop-card card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span>Top Customers</span>
+              <button class="btn btn-sm btn-light filter-chip" onclick="loadTopCustomers()"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+            <div class="card-body table-responsive">
+              <table class="table table-hover align-middle" id="tblCustomers">
+                <thead><tr><th>#</th><th>Name</th><th>Email</th><th class="money">Orders</th><th class="money">Spent</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="kop-card card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span>Top Books</span>
+              <button class="btn btn-sm btn-light filter-chip" onclick="loadTopBooks()"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+            <div class="card-body table-responsive">
+              <table class="table table-hover align-middle" id="tblBooks">
+                <thead><tr><th>#</th><th>Title</th><th>Author</th><th class="money">Sold</th><th class="money">Revenue</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deleted & Restore -->
+    <section class="mb-5" id="deleted-section">
+      <div class="kop-card card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Restore Soft-Deleted</span>
+          <button class="btn btn-sm btn-light filter-chip" onclick="loadDeleted()"><i class="bi bi-arrow-clockwise"></i></button>
+        </div>
+        <div class="card-body">
+          <div class="row g-4">
+            <div class="col-lg-6">
+              <h6 class="fw-bold mb-3">Books</h6>
+              <div class="table-responsive">
+                <table class="table align-middle" id="tblDeletedBooks">
+                  <thead><tr><th style="width:60px">#</th><th>Title</th><th>Code</th><th class="text-end" style="width:130px"></th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <h6 class="fw-bold mb-3">Users</h6>
+              <div class="table-responsive">
+                <table class="table align-middle" id="tblDeletedUsers">
+                  <thead><tr><th style="width:60px">#</th><th>Name</th><th>Email</th><th class="text-end" style="width:130px"></th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="text-center kop-footer">© Koparion Admin • styled for your storefront</p>
+  </main>
+</div>
+
+<!-- ================== JS ================== -->
+<script>
+/* ------- CONFIG ------- */
+let API_BASE = "https://localhost:7108/api/admin"; // đổi cổng cho khớp backend
+let JWT_TOKEN = ""; // nếu bật [Authorize], gán token vào đây
+const CURRENT_PAGE = 'dashboard'; // trang hiện tại để highlight menu
+
+/* ------- Helpers ------- */
+async function fetchJSON(url, options = {}){
+  const headers = options.headers || {};
+  headers['Content-Type'] = 'application/json';
+  if (JWT_TOKEN) headers['Authorization'] = 'Bearer ' + JWT_TOKEN;
+  const res = await fetch(url, {...options, headers});
+  if(!res.ok){ throw new Error(await res.text() || res.statusText); }
+  return res.json();
+}
+const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n||0);
+
+/* ------- Sidebar active ------- */
+(function setActiveNav(){
+  const id = `nav-${CURRENT_PAGE}`;
+  document.getElementById(id)?.classList.add('active');
+})();
+
+/* ------- KPIs ------- */
+async function loadSummary(){
+  try{
+    const d = await fetchJSON(`${API_BASE}/summary`);
+    const host = document.getElementById('summaryRow');
+    host.innerHTML = [
+      kpi('Users', d.users, 'bi-people'),
+      kpi('Orders', d.orders, 'bi-bag-check'),
+      kpi('Revenue', money(d.revenue), 'bi-cash-stack'),
+      kpi('Books active', d.booksActive, 'bi-book'),
+      kpi('Total sold', d.totalSold, 'bi-basket')
+    ].join('');
+  }catch(e){ err(e); }
+}
+function kpi(title,val,icon){
+  return `
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="kop-card card h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between gap-2">
+            <div class="kpi-icon"><i class="bi ${icon}"></i></div>
+            <span class="kop-badge">${title}</span>
+          </div>
+          <div class="kpi-value">${val}</div>
+          <div class="kpi-title">${title}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ------- Sales ------- */
+let salesChart;
+async function loadSales(){
+  try{
+    const type = document.getElementById('typeSel').value;
+    const from = document.getElementById('fromDate').value || null;
+    const to   = document.getElementById('toDate').value || null;
+
+    const url = new URL(`${API_BASE}/sales-report`);
+    if(type) url.searchParams.set('type', type);
+    if(from) url.searchParams.set('from', from);
+    if(to)   url.searchParams.set('to', to);
+
+    const data = await fetchJSON(url.toString());
+    const labels = data.map(x=>x.period);
+    const revenue = data.map(x=>x.revenue);
+    const orders  = data.map(x=>x.orders);
+
+    const ctx = document.getElementById('salesChart');
+    if(salesChart) salesChart.destroy();
+    salesChart = new Chart(ctx,{
+      type:'line',
+      data:{
+        labels,
+        datasets:[
+          { label:'Revenue', data:revenue, borderWidth:3, tension:.35, borderColor:'#f1962f' },
+          { label:'Orders',  data:orders,  borderWidth:2, borderDash:[6,6], tension:.35, borderColor:'#111' }
+        ]
+      },
+      options:{
+        responsive:true,
+        plugins:{ legend:{ labels:{ usePointStyle:true, boxWidth:10, boxHeight:10 } } },
+        scales:{ y:{ beginAtZero:true } }
+      }
+    });
+  }catch(e){ err(e); }
+}
+
+/* ------- Top Customers ------- */
+async function loadTopCustomers(){
+  try{
+    const data = await fetchJSON(`${API_BASE}/top-customers?top=10`);
+    const tbody = document.querySelector('#tblCustomers tbody');
+    tbody.innerHTML = data.map((x,i)=>`
+      <tr>
+        <td>${i+1}</td>
+        <td>${x.fullName ?? ''}</td>
+        <td>${x.email ?? ''}</td>
+        <td class="money">${x.totalOrders}</td>
+        <td class="money">${money(x.totalSpent)}</td>
+      </tr>`).join('');
+  }catch(e){ err(e); }
+}
+
+/* ------- Top Books ------- */
+async function loadTopBooks(){
+  try{
+    const data = await fetchJSON(`${API_BASE}/top-books?top=10`);
+    const tbody = document.querySelector('#tblBooks tbody');
+    tbody.innerHTML = data.map((x,i)=>`
+      <tr>
+        <td>${i+1}</td>
+        <td>${x.title}</td>
+        <td>${x.author ?? ''}</td>
+        <td class="money">${x.totalQuantity}</td>
+        <td class="money">${money(x.revenue)}</td>
+      </tr>`).join('');
+  }catch(e){ err(e); }
+}
+
+/* ------- Deleted & Restore ------- */
+async function loadDeleted(){
+  try{
+    const d = await fetchJSON(`${API_BASE}/deleted-items`);
+
+    // books
+    const tb1 = document.querySelector('#tblDeletedBooks tbody');
+    tb1.innerHTML = (d.books||[]).map((b,i)=>`
+      <tr>
+        <td>${i+1}</td>
+        <td>${b.title}</td>
+        <td>${b.code ?? ''}</td>
+        <td class="text-end">
+          <button class="btn btn-kop btn-sm" onclick="restoreItem('books', ${b.id})">
+            <i class="bi bi-arrow-counterclockwise me-1"></i>Restore
+          </button>
+        </td>
+      </tr>`).join('');
+
+    // users
+    const tb2 = document.querySelector('#tblDeletedUsers tbody');
+    tb2.innerHTML = (d.users||[]).map((u,i)=>`
+      <tr>
+        <td>${i+1}</td>
+        <td>${u.fullName ?? ''}</td>
+        <td>${u.email ?? ''}</td>
+        <td class="text-end">
+          <button class="btn btn-kop btn-sm" onclick="restoreUser('${u.id}')">
+            <i class="bi bi-person-check me-1"></i>Restore
+          </button>
+        </td>
+      </tr>`).join('');
+  }catch(e){ err(e); }
+}
+async function restoreItem(table,id){
+  try{
+    await fetchJSON(`${API_BASE}/restore/${table}/${id}`, {method:'PATCH'});
+    Swal.fire({icon:'success',title:'Restored!'}); loadDeleted();
+  }catch(e){ err(e); }
+}
+async function restoreUser(userId){
+  try{
+    await fetchJSON(`${API_BASE}/restore-user/${encodeURIComponent(userId)}`, {method:'PATCH'});
+    Swal.fire({icon:'success',title:'User restored!'}); loadDeleted();
+  }catch(e){ err(e); }
+}
+
+/* ------- Error toast ------- */
+function err(e){
+  console.error(e);
+  Swal.fire({icon:'error',title:'Lỗi',text:e?.message||'Request error'});
+}
+
+/* ------- Init ------- */
+(function init(){
+  const to = new Date();
+  const from = new Date(); from.setDate(to.getDate()-30);
+  document.getElementById('toDate').value   = to.toISOString().slice(0,10);
+  document.getElementById('fromDate').value = from.toISOString().slice(0,10);
+
+  loadSummary(); loadSales(); loadTopCustomers(); loadTopBooks(); loadDeleted();
+})();
+</script>
+
+<!-- Bootstrap bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
