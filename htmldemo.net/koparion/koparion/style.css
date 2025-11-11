@@ -4774,14 +4774,11 @@ nav.menu .cr-dropdown ul {
     float: left;
 }
 
-.rating-result>a {
+.rating-result i {
     color: #f07c29;
     line-height: 30px;
     position: relative;
     top: -8px;
-}
-
-.rating-result>a i {
     font-size: 15px !important;
     padding: 0 !important;
 }
@@ -4884,6 +4881,7 @@ nav.menu .cr-dropdown ul {
 }
 
 .review-field-ratings .single-control span {
+    display: inline-block;
     float: left;
     font-size: 14px;
     font-weight: 700;
@@ -4892,17 +4890,26 @@ nav.menu .cr-dropdown ul {
 
 .review-field-ratings .single-control .review-control-vote {
     display: inline-block;
-    float: left;
+    flex-direction: row;
     padding-left: 15px;
 }
 
 .review-field-ratings .single-control .review-control-vote a {
-    color: #666;
-    font-size: 16px;
+    color: #ccc;
+    font-size: 16px; 
+    text-decoration: none;
     position: relative;
+    transition: color 0.2s;
+}
+/* ⭐ Khi hover, các sao từ TRÁI đến vị trí hiện tại sáng */
+.review-field-ratings .single-control .review-control-vote a:hover,
+.review-field-ratings .single-control .review-control-vote a:hover ~ a {
+    color: #ccc; /* Các sao sau vẫn mờ */
 }
 
-.review-field-ratings .single-control .review-control-vote a:hover {
+/* ⭐ Sao được chọn hoặc đang hover */
+.review-field-ratings .single-control .review-control-vote a.active i,
+.review-field-ratings .single-control .review-control-vote a:hover i {
     color: #f07c29;
 }
 
