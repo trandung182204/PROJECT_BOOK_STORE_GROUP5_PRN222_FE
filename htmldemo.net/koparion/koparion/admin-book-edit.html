@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Book</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+      font-family: "Poppins", sans-serif;
+    }
+
+    h2 {
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .card {
+      border: none;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: #0d47a1;
+    }
+
+    .form-control,
+    .form-select {
+      border-radius: 10px;
+      border: 1px solid #ced4da;
+      transition: all 0.2s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: #1976d2;
+      box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+    }
+
+    textarea.form-control {
+      resize: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #1976d2, #1565c0);
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0d47a1, #1565c0);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3);
+    }
+
+    .btn-secondary {
+      border-radius: 10px;
+      padding: 10px 20px;
+      background: #90a4ae;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: #78909c;
+      transform: translateY(-2px);
+    }
+
+    .text-primary {
+      color: #1565c0 !important;
+    }
+
+    /* Responsive spacing for smaller screens */
+    @media (max-width: 768px) {
+      .card {
+        padding: 15px;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5 mb-5">
+    <h2 class="text-center text-primary mb-4">✏️ Edit Book</h2>
+
+    <div class="card shadow-sm p-4">
+      <div class="card-body">
+        <form id="editBookForm">
+          <input type="hidden" id="bookId" />
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Code</label>
+              <input type="text" id="code" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Title</label>
+              <input type="text" id="title" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Author</label>
+              <input type="text" id="author" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Publisher</label>
+              <input type="text" id="publisher" class="form-control" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">ISBN</label>
+              <input type="text" id="isbn" class="form-control" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Publication Year</label>
+              <input type="number" id="publicationYear" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Page Count</label>
+              <input type="number" id="pageCount" class="form-control" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Language</label>
+              <input type="text" id="language" class="form-control" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Price</label>
+              <input
+                type="number"
+                id="price"
+                class="form-control"
+                step="0.01"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Discount Price</label>
+              <input
+                type="number"
+                id="discountPrice"
+                class="form-control"
+                step="0.01"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Stock Quantity</label>
+              <input type="number" id="stockQuantity" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Status</label>
+              <select id="status" class="form-select">
+                <option value="active">active</option>
+                <option value="inactive">inactive</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Thumbnail URL</label>
+              <input type="text" id="thumbnailUrl" class="form-control" />
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea
+                id="description"
+                class="form-control"
+                rows="3"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="mt-4 text-end">
+            <button type="submit" class="btn btn-primary">
+              💾 Update
+            </button>
+            <a href="admin-book.html" class="btn btn-secondary">← Back</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = "https://localhost:7108/api/Book";
+    const id = new URLSearchParams(window.location.search).get("id");
+
+    // ✅ Load book by ID
+    async function loadBook() {
+      try {
+        const res = await fetch(`${apiUrl}/${id}`);
+        const result = await res.json();
+        const book = result.data || result;
+
+        if (!book) {
+          alert("⚠️ Book not found!");
+          window.location.href = "admin-book.html";
+          return;
+        }
+
+        document.getElementById("bookId").value = book.id;
+        document.getElementById("code").value = book.code;
+        document.getElementById("title").value = book.title;
+        document.getElementById("author").value = book.author ?? "";
+        document.getElementById("publisher").value = book.publisher ?? "";
+        document.getElementById("isbn").value = book.isbn ?? "";
+        document.getElementById("publicationYear").value = book.publicationYear ?? "";
+        document.getElementById("pageCount").value = book.pageCount ?? "";
+        document.getElementById("language").value = book.language ?? "";
+        document.getElementById("description").value = book.description ?? "";
+        document.getElementById("price").value = book.price ?? "";
+        document.getElementById("discountPrice").value = book.discountPrice ?? "";
+        document.getElementById("stockQuantity").value = book.stockQuantity ?? "";
+        document.getElementById("thumbnailUrl").value = book.thumbnailUrl ?? "";
+        document.getElementById("status").value = book.status?.toLowerCase() ?? "active";
+      } catch (err) {
+        console.error(err);
+        alert("⚠️ Error loading book data!");
+      }
+    }
+
+    // ✅ Handle update
+    document.getElementById("editBookForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const updatedBook = {
+        id: document.getElementById("bookId").value,
+        code: document.getElementById("code").value,
+        title: document.getElementById("title").value,
+        author: document.getElementById("author").value,
+        publisher: document.getElementById("publisher").value,
+        isbn: document.getElementById("isbn").value,
+        publicationYear: parseInt(document.getElementById("publicationYear").value) || null,
+        pageCount: parseInt(document.getElementById("pageCount").value) || null,
+        language: document.getElementById("language").value,
+        description: document.getElementById("description").value,
+        price: parseFloat(document.getElementById("price").value) || 0,
+        discountPrice: parseFloat(document.getElementById("discountPrice").value) || 0,
+        stockQuantity: parseInt(document.getElementById("stockQuantity").value) || 0,
+        thumbnailUrl: document.getElementById("thumbnailUrl").value,
+        status: document.getElementById("status").value
+      };
+
+      try {
+        const res = await fetch(`${apiUrl}/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedBook)
+        });
+
+        if (res.ok) {
+          alert("✅ Book updated successfully!");
+          window.location.href = "admin-book.html";
+        } else {
+          const errorMsg = await res.text();
+          alert("❌ Failed to update book:\n" + errorMsg);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("⚠️ Error updating book!");
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", loadBook);
+  </script>
+</body>
+</html>
