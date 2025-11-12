@@ -630,6 +630,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     if (data.succeeded && data.data?.accessToken) {
       localStorage.setItem("accessToken", data.data.accessToken);
       localStorage.setItem("refreshToken", data.data.refreshToken);
+	  localStorage.setItem("token", data.data.accessToken);
 
       // 👉 Kiểm tra role từ token, nếu là Admin → vào thẳng admin.html
       const payload = (function parseJwt(token) {
