@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ✅ Hiển thị tên sách
     if (bookId) {
         try {
-            const res = await fetch(`https://localhost:7108/api/books/${bookId}`);
+            const res = await fetch(`https://localhost:5282/api/books/${bookId}`);
             if (res.ok) {
                 const book = await res.json();
                 bookTitleEl.textContent = book.title || "Không rõ tên sách";
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const review = { rating, comment };
 
         try {
-            const response = await fetch(`https://localhost:7108/api/books/${bookId}/reviews`, {
+            const response = await fetch(`https://localhost:5282/api/books/${bookId}/reviews`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
