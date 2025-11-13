@@ -35,6 +35,38 @@
 	<!-- modernizr css -->
 	<script src="js/vendor/modernizr-2.8.3.min.js"></script>
 </head>
+<style>
+	#book-description {
+		/* Quan trọng: Thêm transition để tạo hiệu ứng mượt */
+		transition: max-height 0.4s ease-in-out;
+		overflow: hidden;
+	}
+
+	/* Trạng thái thu gọn (mặc định) */
+	#book-description.collapsed {
+		display: -webkit-box;
+		-webkit-line-clamp: 4;
+		/* Chỉ hiển thị 5 dòng */
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	/* (Tùy chọn) Style cho nút */
+	.toggle-btn {
+		background: none;
+		border: none;
+		color: #007bff;
+		/* Màu xanh (hoặc màu chủ đạo của bạn) */
+		cursor: pointer;
+		font-weight: bold;
+		padding: 5px 0;
+	}
+
+	.toggle-btn:hover {
+		text-decoration: underline;
+	}
+</style>
 
 <body class="product-details">
 	<!--[if lt IE 8]>
@@ -128,15 +160,10 @@
 										</form>
 									</div>
 
-									<div class="product-social-links">
-										<div class="product-addto-links">
-											<a href="#"><i class="fa fa-heart"></i></a>
-											<a href="#"><i class="fa fa-pie-chart"></i></a>
-											<a href="#"><i class="fa fa-envelope-o"></i></a>
-										</div>
-										<div class="product-addto-links-text">
-											<p id="book-description">Đang tải mô tả...</p>
-										</div>
+									<div class="product-addto-links-text">
+										<h4>Book Description</h4>
+										<p id="book-description" class="collapsed">Đang tải mô tả...</p>
+
 									</div>
 								</div>
 							</div>
@@ -147,7 +174,7 @@
 					<div class="product-info-area mt-80">
 						<!-- Nav tabs -->
 						<ul class="nav">
-							<li><a href="#Reviews" data-bs-toggle="tab">Reviews 3</a></li>
+							<li><a href="#Reviews" data-bs-toggle="tab">Reviews</a></li>
 						</ul>
 						<div class="tab-content">
 							<div class="tab-pane fade" id="Reviews">

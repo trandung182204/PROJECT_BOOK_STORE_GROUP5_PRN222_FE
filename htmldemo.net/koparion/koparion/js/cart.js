@@ -9,8 +9,8 @@ const BASE_URL = "http://localhost:5282/api/cart"; // Đổi port nếu backend 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("cart.js loaded");
 
-    // 1. Logic cho Mini Cart Button (Header)
     setTimeout(() => {
+        // Mini Cart Button (Header)
         const cartBtn = document.getElementById("mini-cart-btn");
         if (cartBtn) {
             cartBtn.addEventListener("click", function (e) {
@@ -22,12 +22,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // Tải Mini Cart trên tất cả các trang
         loadMiniCart();
 
-        // 2. Logic cho Trang Giỏ hàng Chính (cart.html)
+        // Trang Giỏ hàng Chính (cart.html)
         if (window.location.pathname.endsWith('/cart.html')) {
             initCartPage();
         }
 
-        // 3. Gắn sự kiện cho nút Add to Cart
+        // Gắn sự kiện cho nút Add to Cart
         const addToCartBtn = document.getElementById("add-to-cart-btn");
         if (addToCartBtn) {
             addToCartBtn.addEventListener("click", addToCartHandler);
@@ -42,7 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // 🛒 2. CÁC HÀM API CORE
 // =================================================================
 
-// Lấy giỏ hàng hiện tại
 async function getCart() {
     try {
         const res = await fetch(BASE_URL, {
@@ -60,16 +59,13 @@ async function getCart() {
     }
 }
 
-// Thêm sản phẩm vào giỏ
 async function addToCartHandler(e) {
     e.preventDefault();
     console.log("🔥 addToCartHandler called");
 
-    // Lấy bookId từ URL params
     const params = new URLSearchParams(window.location.search);
     const bookId = params.get("id");
 
-    // Lấy quantity từ input
     const qtyInput = document.querySelector(".qty");
     const quantity = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
 
@@ -78,7 +74,6 @@ async function addToCartHandler(e) {
         return;
     }
 
-    // Lấy token từ localStorage
     const token = localStorage.getItem("token");
     if (!token) {
         alert("Vui lòng đăng nhập trước khi thêm vào giỏ hàng.");
@@ -112,8 +107,8 @@ async function addToCartHandler(e) {
         const data = await res.json();
         console.log("✅ Add to cart success:", data);
 
-        alert("Đã thêm sản phẩm vào giỏ hàng!");
-        await loadMiniCart(); // Load mini cart sau khi thêm
+        alert(`Đã thêm sản phẩm vào giỏ hàng!`);
+        await loadMiniCart();
 
     } catch (err) {
         console.error("❌ Add to cart error:", err);
@@ -121,7 +116,6 @@ async function addToCartHandler(e) {
     }
 }
 
-// Cập nhật số lượng
 async function updateCartItem(itemId, newQuantity) {
     try {
         const res = await fetch(`${BASE_URL}/items/${itemId}`, {
@@ -142,7 +136,6 @@ async function updateCartItem(itemId, newQuantity) {
     }
 }
 
-// Xóa 1 sản phẩm khỏi giỏ
 async function deleteCartItem(itemId) {
     try {
         const res = await fetch(`${BASE_URL}/items/${itemId}`, {
@@ -159,7 +152,6 @@ async function deleteCartItem(itemId) {
     }
 }
 
-// Dọn sạch giỏ hàng
 async function clearCart() {
     try {
         const res = await fetch(`${BASE_URL}/clear`, {
@@ -199,52 +191,53 @@ async function loadMiniCart() {
         const res = await fetch(BASE_URL, { headers: { "Authorization": `Bearer ${token}` } });
         if (!res.ok) throw new Error("Không thể tải giỏ hàng.");
         const data = await res.json();
-        renderMiniCart(data);
+        const cartItems = data.data?.cartItems || [];
+        renderMiniCart(cartItems);
     } catch (err) {
         console.error("❌ Load cart error:", err);
         cartItemsContainer.innerHTML = `<p style="padding:10px;">Không thể tải giỏ hàng.</p>`;
     }
 }
 
-function renderMiniCart(cartData) {
+function renderMiniCart(cartItems) {
     const cartItemsContainer = document.getElementById("cart-items");
     const cartCount = document.getElementById("cart-count");
     const cartTotal = document.getElementById("cart-total");
 
-    if (!cartData || !cartData.items || cartData.items.length === 0) {
+    if (!cartItems || cartItems.length === 0) {
         cartItemsContainer.innerHTML = `<p style="padding:10px;">Giỏ hàng trống.</p>`;
         cartCount.textContent = "0";
         cartTotal.textContent = "$0";
         return;
     }
 
-    cartCount.textContent = cartData.items.length;
+    cartCount.textContent = cartItems.length;
     let total = 0;
     cartItemsContainer.innerHTML = "";
 
-    cartData.items.forEach(item => {
-        const price = item.price || 0;
+    cartItems.forEach(item => {
+        const book = item.book;
+        const price = book?.price ?? 0; // chỉ dùng price
         const qty = item.quantity || 1;
         const subtotal = price * qty;
         total += subtotal;
 
         const itemHTML = `
-            <div class="single-cart">
-                <div class="cart-img">
-                    <a href="#"><img src="${item.imageUrl || 'img/default.jpg'}" alt="${item.bookTitle || 'Book'}"></a>
-                </div>
-                <div class="cart-info">
-                    <h5><a href="#">${item.bookTitle || 'Unknown'}</a></h5>
-                    <p>${qty} x $${price.toLocaleString()}</p>
-                </div>
-                <div class="cart-icon">
-                    <a href="#" onclick="removeFromMiniCart(${item.id}); return false;"><i class="fa fa-remove"></i></a>
-                </div>
+        <div class="single-cart">
+            <div class="cart-img">
+                <a href="#"><img src="${book?.thumbnailUrl || 'img/flex/1.jpg'}" alt="${book?.title || 'Book'}"></a>
             </div>
-        `;
+            <div class="cart-info">
+                <h5><a href="#">${book?.title || 'Unknown'}</a></h5>
+                <p>${qty} x $${price.toLocaleString()}</p>
+            </div>
+            <div class="cart-icon">
+                <a href="#" onclick="removeFromMiniCart(${item.id}); return false;"><i class="fa fa-remove"></i></a>
+            </div>
+        </div>
+    `;
         cartItemsContainer.insertAdjacentHTML("beforeend", itemHTML);
     });
-
     cartTotal.textContent = "$" + total.toLocaleString();
 }
 
@@ -275,67 +268,69 @@ async function removeFromMiniCart(itemId) {
 
 async function initCartPage() {
     const cartData = await getCart();
-    if (cartData) {
-        renderCartPage(cartData);
-        attachCartPageEvents(cartData);
-    }
+    const cartItems = cartData?.data?.cartItems || [];
+    renderCartPage(cartItems);
+    attachCartPageEvents(cartItems);
 }
 
-function renderCartPage(cartData) {
+function renderCartPage(cartItems) {
     const cartTableBody = document.getElementById("cart-body");
-    const cartSubtotal = document.getElementById("subtotal");
-    const cartTotalFinal = document.getElementById("total");
-    const clearCartBtn = document.getElementById("clear-cart");
+    const cartSubtotalEl = document.getElementById("subtotal");
+    const cartTotalEl = document.getElementById("total");
+    const shippingEl = document.getElementById("shipping-amount");
+    const shippingNoteEl = document.getElementById("shipping-note");
 
     if (!cartTableBody) return;
 
-    if (!cartData || !cartData.items || cartData.items.length === 0) {
+    if (!cartItems || cartItems.length === 0) {
         cartTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Giỏ hàng của bạn trống.</td></tr>';
-        if (cartSubtotal) cartSubtotal.textContent = "$0";
-        if (cartTotalFinal) cartTotalFinal.textContent = "$0";
-        if (clearCartBtn) clearCartBtn.style.display = 'none';
-        const updateBtn = document.getElementById("update-cart");
-        if(updateBtn) updateBtn.style.pointerEvents = 'none';
+        if (cartSubtotalEl) cartSubtotalEl.textContent = "$0.00";
+        if (cartTotalEl) cartTotalEl.textContent = "$0.00";
+        if (shippingEl) shippingEl.textContent = "$0.00";
         return;
     }
 
-    if (clearCartBtn) clearCartBtn.style.display = 'inline-block';
-
-    let total = 0;
+    let subtotal = 0;
     let tableHTML = "";
 
-    cartData.items.forEach(item => {
-        const price = item.price || 0;
+    cartItems.forEach(item => {
+        const book = item.book;
+        const price = book?.price ?? 0;
         const qty = item.quantity || 1;
-        const subtotal = price * qty;
-        total += subtotal;
+        const itemTotal = price * qty;
+        subtotal += itemTotal;
 
         tableHTML += `
-            <tr data-item-id="${item.id}">
-                <td class="product-thumbnail">
-                    <a href="#"><img src="${item.imageUrl || 'img/default.jpg'}" alt="${item.bookTitle || 'Book'}"></a>
-                </td>
-                <td class="product-name">
-                    <a href="#">${item.bookTitle || 'Unknown'}</a>
-                </td>
-                <td class="product-price">$${price.toLocaleString()}</td>
-                <td class="product-quantity">
-                    <input type="number" id="qty-${item.id}" value="${qty}" min="1" />
-                </td>
-                <td class="product-subtotal">$${subtotal.toLocaleString()}</td>
-                <td class="product-remove">
-                    <a href="#" onclick="deleteCartItemAndReload(${item.id}); return false;"><i class="fa fa-times"></i></a>
-                </td>
-            </tr>
-        `;
+        <tr data-item-id="${item.id}">
+            <td class="product-thumbnail">
+                <a href="#"><img src="${book?.thumbnailUrl || 'img/flex/1.jpg'}" alt="${book?.title || 'Book'}"></a>
+            </td>
+            <td class="product-name">
+                <a href="#">${book?.title || 'Unknown'}</a>
+            </td>
+            <td class="product-price">$${price.toFixed(2)}</td>
+            <td class="product-quantity">
+                <input type="number" id="qty-${item.id}" value="${qty}" min="1" />
+            </td>
+            <td class="product-subtotal">$${itemTotal.toFixed(2)}</td>
+            <td class="product-remove">
+                <a href="#" onclick="deleteCartItemAndReload(${item.id}); return false;"><i class="fa fa-times"></i></a>
+            </td>
+        </tr>`;
     });
 
+    // Tính phí ship
+    const shippingFee = subtotal >= 300 ? 0 : 15;
+    const total = subtotal + shippingFee;
+
     cartTableBody.innerHTML = tableHTML;
-    if (cartSubtotal) cartSubtotal.textContent = "$" + total.toLocaleString();
-    if (cartTotalFinal) cartTotalFinal.textContent = "$" + total.toLocaleString();
+    if (cartSubtotalEl) cartSubtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+    if (shippingEl) shippingEl.textContent = `$${shippingFee.toFixed(2)}`;
+    if (cartTotalEl) cartTotalEl.textContent = `$${total.toFixed(2)}`;
+    if (shippingNoteEl) shippingNoteEl.textContent = "Free shipping for orders over $300.";
 }
 
-function attachCartPageEvents(cartData) {
+function attachCartPageEvents(cartItems) {
     const updateCartBtn = document.getElementById("update-cart");
     const clearCartBtn = document.getElementById("clear-cart");
 
@@ -348,11 +343,11 @@ function attachCartPageEvents(cartData) {
         });
     }
 
-    if (updateCartBtn && cartData && cartData.items) {
+    if (updateCartBtn && cartItems && cartItems.length > 0) {
         updateCartBtn.style.pointerEvents = 'auto';
         updateCartBtn.addEventListener("click", async (e) => {
             e.preventDefault();
-            const itemsToUpdate = cartData.items.map(item => {
+            const itemsToUpdate = cartItems.map(item => {
                 const qtyInput = document.getElementById(`qty-${item.id}`);
                 return {
                     itemId: item.id,
