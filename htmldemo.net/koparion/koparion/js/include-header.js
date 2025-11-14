@@ -1,27 +1,40 @@
 async function loadHeader() {
-    // 1. Tìm vị trí cần chèn header
     const headerContainer = document.getElementById('header-placeholder'); 
     
-    // 2. Kiểm tra xem phần tử placeholder có tồn tại không
     if (headerContainer) {
         try {
-            // 3. Tải nội dung từ file header.html
             const response = await fetch('header.html'); 
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const html = await response.text();
-            
-            // 4. Chèn nội dung vào placeholder
             headerContainer.innerHTML = html;
+
+            // ✅ Header đã load xong → gọi hàm kiểm tra đăng nhập
+            updateAccountMenu();
+
         } catch (error) {
-            console.error("Lỗi khi tải header. Hãy đảm bảo bạn đang chạy trên Live Server!", error);
-            // Có thể thêm nội dung dự phòng ở đây
+            console.error("Lỗi khi tải header!", error);
             headerContainer.innerHTML = '<h1>Lỗi tải Header!</h1>'; 
         }
     }
 }
 
-// Chạy hàm sau khi tài liệu HTML chính đã tải xong
+// Hàm kiểm tra token và cập nhật menu
+function updateAccountMenu() {
+    const accessToken = localStorage.getItem("accessToken");
+    const signInItem = document.getElementById("signInItem");
+    const accountItem = document.getElementById("accountItem");
+
+    if (!signInItem || !accountItem) return; // tránh lỗi khi chưa load xong header
+
+    if (accessToken) {
+        // Đã đăng nhập → chỉ hiện My Account
+        signInItem.style.display = "none";
+        accountItem.style.display = "block";
+    } else {
+        // Chưa đăng nhập → chỉ hiện Sign in
+        signInItem.style.display = "block";
+        accountItem.style.display = "none";
+    }
+}
+
 document.addEventListener('DOMContentLoaded', loadHeader);

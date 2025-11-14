@@ -245,17 +245,20 @@
 <!-- ================== JS ================== -->
 <script>
 /* ------- CONFIG ------- */
-let API_BASE = "https://localhost:7108/api/admin"; // đổi cổng cho khớp backend
-let JWT_TOKEN = ""; // nếu bật [Authorize], gán token vào đây
-const CURRENT_PAGE = 'dashboard'; // trang hiện tại để highlight menu
+// trên cùng file admin.html
+const API_BASE = "http://localhost:5282/api/Admin";
+let jwtToken = null;
+const CURRENT_PAGE = 'dashboard';
 
 /* ------- Helpers ------- */
-async function fetchJSON(url, options = {}){
+async function fetchJSON(url, options = {}) {
   const headers = options.headers || {};
   headers['Content-Type'] = 'application/json';
-  if (JWT_TOKEN) headers['Authorization'] = 'Bearer ' + JWT_TOKEN;
-  const res = await fetch(url, {...options, headers});
-  if(!res.ok){ throw new Error(await res.text() || res.statusText); }
+  if (jwtToken) {
+    headers['Authorization'] = 'Bearer ' + jwtToken;
+  }
+  const res = await fetch(url, { ...options, headers });
+  if (!res.ok) { throw new Error(await res.text() || res.statusText); }
   return res.json();
 }
 const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n||0);
@@ -420,13 +423,18 @@ function err(e){
 }
 
 /* ------- Init ------- */
-(function init(){
+(function initAdminPage(){
   const to = new Date();
   const from = new Date(); from.setDate(to.getDate()-30);
   document.getElementById('toDate').value   = to.toISOString().slice(0,10);
   document.getElementById('fromDate').value = from.toISOString().slice(0,10);
 
-  loadSummary(); loadSales(); loadTopCustomers(); loadTopBooks(); loadDeleted();
+  loadSummary(); 
+  loadSales(); 
+  loadTopCustomers(); 
+  loadTopBooks(); 
+  loadDeleted();
+
 })();
 </script>
 <script>
@@ -434,26 +442,26 @@ function err(e){
 (function guardAdminPage(){
   const token = localStorage.getItem('accessToken');
   if (!token) {
-    // chưa đăng nhập
     location.href = 'login.html';
     return;
   }
   function parseJwt(t){
     try{
-      const p = JSON.parse(atob(t.split('.')[1]));
-      return p;
+      return JSON.parse(atob(t.split('.')[1]));
     }catch(e){return null;}
   }
   const payload = parseJwt(token);
   const roleClaim = payload?.role || payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
   const roles = Array.isArray(roleClaim) ? roleClaim : (roleClaim ? [roleClaim] : []);
+
   if (!roles.includes('Admin')) {
-    // Không phải admin
     alert('Bạn không có quyền truy cập Admin');
     location.href = 'index.html';
   } else {
-    // gắn token để các fetch kèm Authorization
-    window.JWT_TOKEN = token; // trùng tên biến bạn đang dùng trong admin.html
+    // ✔ gắn token đúng biến
+    jwtToken = token;
+    // ✔ giờ mới load dữ liệu admin
+    initAdminPage();
   }
 })();
 </script>

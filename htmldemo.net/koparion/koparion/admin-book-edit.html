@@ -200,7 +200,7 @@
   </div>
 
   <script>
-    const apiUrl = "https://localhost:7108/api/Book";
+    const apiUrl = "http://localhost:5282/api/Book";
     const id = new URLSearchParams(window.location.search).get("id");
 
     // ✅ Load book by ID
@@ -281,5 +281,33 @@
 
     document.addEventListener("DOMContentLoaded", loadBook);
   </script>
+    <script>
+      // Guard vào trang admin
+      (function guardAdminPage(){
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          location.href = 'login.html';
+          return;
+        }
+        function parseJwt(t){
+          try{
+            return JSON.parse(atob(t.split('.')[1]));
+          }catch(e){return null;}
+        }
+        const payload = parseJwt(token);
+        const roleClaim = payload?.role || payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+        const roles = Array.isArray(roleClaim) ? roleClaim : (roleClaim ? [roleClaim] : []);
+      
+        if (!roles.includes('Admin')) {
+          alert('Bạn không có quyền truy cập Admin');
+          location.href = 'index.html';
+        } else {
+          // ✔ gắn token đúng biến
+          jwtToken = token;
+          // ✔ giờ mới load dữ liệu admin
+          initAdminPage();
+        }
+      })();
+      </script>
 </body>
 </html>
