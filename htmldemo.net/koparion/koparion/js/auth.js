@@ -40,6 +40,46 @@ async function renewToken() {
   }
 }
 
+// Hàm check signIn
+document.addEventListener("DOMContentLoaded", function () {
+    const accessToken = localStorage.getItem("accessToken");
+    const menu = document.getElementById("accountMenu");
+    let signInItem = document.getElementById("signInItem");
+    let accountItem = document.getElementById("accountItem");
+
+    // Nếu đã đăng nhập
+    if (accessToken) {
+        // Ẩn Sign in
+        if (signInItem) signInItem.remove();
+
+        // Thêm nút Logout nếu chưa có
+        if (!document.getElementById("logoutItem")) {
+            const li = document.createElement("li");
+            li.id = "logoutItem";
+            li.innerHTML = `<a href="#" onclick="logout()">Logout</a>`;
+            menu.appendChild(li);
+        }
+
+        // Chỉ còn một item → CSS có thể bỏ dấu |
+        menu.classList.add("only-one");
+
+    } else {
+        // Chưa đăng nhập → hiển thị Sign in nếu chưa có
+        if (!signInItem) {
+            const li = document.createElement("li");
+            li.id = "signInItem";
+            li.innerHTML = `<a href="login.html">Sign in</a>`;
+            menu.appendChild(li);
+        }
+
+        // Xóa Logout nếu có
+        const logoutItem = document.getElementById("logoutItem");
+        if (logoutItem) logoutItem.remove();
+
+        menu.classList.remove("only-one");
+    }
+});
+
 // 🔒 Hàm fetch có xác thực (tự động renew khi 401)
 async function fetchWithAccount(url, options = {}) {
   const token = localStorage.getItem("accessToken");
