@@ -317,7 +317,7 @@
             <div class="mt-3 mb-1 small text-uppercase text-muted">
               Analytics
             </div>
-            <a id="nav-reports" class="nav-link" href="admin-reports.html"
+            <a id="nav-reports" class="nav-link" href="admin-payment.html"
               ><i class="bi bi-graph-up"></i> Reports</a
             >
             <a id="nav-deleted" class="nav-link" href="#deleted-section"
@@ -349,7 +349,8 @@
                     class="form-select form-select-sm"
                     style="width: 150px"
                   >
-                    <option value="SHIPPING" selected>Shipping</option>
+                    <option value="" selected>Select option</option>
+                    <option value="SHIPPING">Shipping</option>
                     <option value="COMPLETED">Completed</option>
                     <option value="CANCELL">Cancell</option>
                   </select>
@@ -381,6 +382,7 @@
                     <th>Địa chỉ giao hàng</th>
                     <th>Ngày tạo</th>
                     <th>Tổng tiền (VNĐ)</th>
+                    <th>Hành động</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -394,10 +396,8 @@
     <!-- ================== JS ================== -->
     <script>
       /* ------- CONFIG ------- */
-      let API_BASE = "https://localhost:7108/api/order";
-      let API_USER = "https://localhost:7108/api/user";
-      let JWT_TOKEN = localStorage.getItem("jwt_token");
-      const userCache = {};
+      let API_BASE = "http://localhost:5282/api/order";
+      let JWT_TOKEN = localStorage.getItem("token");
 
       async function fetchJSON(url, options = {}) {
         const headers = options.headers || {};
@@ -411,7 +411,7 @@
       }
       async function loadOrder() {
         try {
-          const type = document.getElementById("typeSel").value;
+          const type = document.getElementById("typeSel").value || null;
           const from = document.getElementById("fromDate").value || null;
           const to = document.getElementById("toDate").value || null;
 
@@ -429,6 +429,10 @@
           for (const o of orders) {
             const tr = document.createElement("tr");
             const date = new Date(o.createdAt).toLocaleDateString("vi-VN");
+            const updateButton =
+              o.orderStatus === "SHIPPING" || o.orderStatus === "PENDING"
+                ? `<button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${o.id}', '${o.orderStatus}')">Cập nhật</button>`
+                : "";
             tr.innerHTML = `
                     <td>${o.id}</td>
                     <td>${o.user.fullName} </td>
@@ -436,6 +440,12 @@
                     <td>${o.shippingAddress}</td>
                     <td>${date}</td>
                     <td>${o.totalAmount.toLocaleString("vi-VN")}</td>
+                    <td>
+                      <button class="btn btn-info btn-sm" onclick="viewOrderDetail('${
+                        o.id
+                      }')">Chi tiết</button>
+                      ${updateButton}
+                    </td>
                 `;
             tbody.appendChild(tr);
           }
@@ -444,6 +454,165 @@
           Swal.fire({
             icon: "error",
             title: "Lỗi tải đơn hàng",
+            text: e.message,
+            confirmButtonColor: "#f1962f",
+          });
+        }
+      }
+      async function viewOrderDetail(id) {
+        try {
+          const url = `${API_BASE}/${id}`;
+          const res = await fetchJSON(url);
+          const order = res.data; // vì backend trả về { succeeded, message, data }
+
+          const date = new Date(order.createdAt).toLocaleString("vi-VN");
+
+          // --- render danh sách sản phẩm ---
+          let itemsHtml = "";
+          if (order.orderItems && order.orderItems.length > 0) {
+            itemsHtml = `
+        <table border="1" width="100%" style="font-size:14px;text-align:center;border-collapse:collapse;">
+          <thead style="background:#f3f3f3;">
+            <tr>
+              <th>Ảnh bìa</th>
+              <th>Tên sách</th>
+              <th>Số lượng</th>
+              <th>Đơn giá (VNĐ)</th>
+              <th>Thành tiền (VNĐ)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${order.orderItems
+              .map(
+                (item) => `
+                <tr>
+                  <td><img src="${
+                    item.book?.coverUrl || "/img/no-image.png"
+                  }" width="50" height="70" style="object-fit:cover"></td>
+                  <td>${item.book?.title || "(Không có tên sách)"}</td>
+                  <td>${item.quantity}</td>
+                  <td>${Number(item.unitPrice).toLocaleString("vi-VN")}</td>
+                  <td>${(item.unitPrice * item.quantity).toLocaleString(
+                    "vi-VN"
+                  )}</td>
+                </tr>`
+              )
+              .join("")}
+          </tbody>
+        </table>`;
+          } else {
+            itemsHtml = `<p><i>Không có sản phẩm trong đơn hàng này.</i></p>`;
+          }
+
+          Swal.fire({
+            title: `🧾 Đơn hàng #${order.id}`,
+            html: `
+        <div style="text-align:left; font-size:15px;">
+          <div style="display:flex; align-items:center; margin-bottom:10px;">
+            <img src="${order.user.avatarUrl}" 
+                 alt="Avatar" 
+                 style="width:60px;height:60px;border-radius:50%;margin-right:12px;">
+            <div>
+              <b>${order.user.fullName}</b><br>
+              <small>${order.user.email}</small>
+            </div>
+          </div>
+
+          <p><b>Địa chỉ giao hàng:</b> ${order.shippingAddress}</p>
+          <p><b>Phương thức thanh toán:</b> ${order.paymentMethod}</p>
+          <p><b>Trạng thái thanh toán:</b> ${order.paymentStatus}</p>
+          <p><b>Trạng thái đơn hàng:</b> 
+            <span style="text-transform:uppercase;color:${
+              order.orderStatus === "completed"
+                ? "green"
+                : order.orderStatus === "shipping"
+                ? "orange"
+                : "gray"
+            };">
+              ${order.orderStatus}
+            </span>
+          </p>
+          <p><b>Phí vận chuyển:</b> ${order.shippingFee.toLocaleString(
+            "vi-VN"
+          )} VNĐ</p>
+          <p><b>Tổng tiền:</b> ${order.totalAmount.toLocaleString(
+            "vi-VN"
+          )} VNĐ</p>
+          <p><b>Ngày tạo:</b> ${date}</p>
+
+          <hr>
+          <h5>📚 Sản phẩm trong đơn hàng</h5>
+          ${itemsHtml}
+        </div>
+      `,
+            width: 700,
+            confirmButtonText: "Đóng",
+            confirmButtonColor: "#f1962f",
+          });
+        } catch (e) {
+          console.error(e);
+          Swal.fire({
+            icon: "error",
+            title: "Không thể tải chi tiết đơn hàng",
+            text: e.message,
+            confirmButtonColor: "#f1962f",
+          });
+        }
+      }
+      async function updateOrderStatus(id, currentStatus) {
+        // ✅ Chỉ cho chỉnh khi trạng thái hiện tại là SHIPPING
+        if (!(currentStatus === "SHIPPING" || currentStatus === "PENDING")) {
+          Swal.fire({
+            icon: "warning",
+            title: "Không thể cập nhật",
+            text: "Chỉ đơn hàng đang ở trạng thái SHIPPING mới có thể cập nhật!",
+            confirmButtonColor: "#f1962f",
+          });
+          return;
+        }
+
+        const { value: newStatus } = await Swal.fire({
+          title: "Cập nhật trạng thái",
+          input: "select",
+          inputOptions: {
+            SHIPPING: "Shipping",
+            COMPLETED: "Completed",
+            CANCELL: "Cancelled",
+          },
+          inputPlaceholder: "Chọn trạng thái mới",
+          showCancelButton: true,
+          confirmButtonText: "Cập nhật",
+          confirmButtonColor: "#f1962f",
+        });
+
+        if (!newStatus) return;
+
+        try {
+          const res = await fetch(`${API_BASE}/${id}/status`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + JWT_TOKEN,
+            },
+            body: JSON.stringify(newStatus),
+          });
+
+          if (!res.ok) throw new Error(await res.text());
+          const data = await res.json();
+
+          Swal.fire({
+            icon: "success",
+            title: "Thành công",
+            text: data.message,
+            confirmButtonColor: "#f1962f",
+          });
+
+          // reload danh sách đơn hàng
+          await loadOrder();
+        } catch (e) {
+          Swal.fire({
+            icon: "error",
+            title: "Cập nhật thất bại",
             text: e.message,
             confirmButtonColor: "#f1962f",
           });
