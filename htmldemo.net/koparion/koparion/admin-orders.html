@@ -430,7 +430,7 @@
             const tr = document.createElement("tr");
             const date = new Date(o.createdAt).toLocaleDateString("vi-VN");
             const updateButton =
-              o.orderStatus === "SHIPPING"
+              o.orderStatus === "SHIPPING" || o.orderStatus === "PENDING"
                 ? `<button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${o.id}', '${o.orderStatus}')">Cập nhật</button>`
                 : "";
             tr.innerHTML = `
@@ -561,7 +561,7 @@
       }
       async function updateOrderStatus(id, currentStatus) {
         // ✅ Chỉ cho chỉnh khi trạng thái hiện tại là SHIPPING
-        if (currentStatus !== "SHIPPING") {
+        if (!(currentStatus === "SHIPPING" || currentStatus === "PENDING")) {
           Swal.fire({
             icon: "warning",
             title: "Không thể cập nhật",
