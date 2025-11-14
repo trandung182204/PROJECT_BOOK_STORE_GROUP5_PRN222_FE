@@ -91,7 +91,7 @@
 											Orders</a>
 										<a href="#account-info" data-bs-toggle="tab"><i class="fa fa-user"></i> Account
 											Details</a>
-										<a href="login.html"><i class="fa fa-sign-out"></i> Logout</a>
+										<a class="nav-link" href="login.html" id="logout-link"><i class="fa fa-sign-out"></i> Logout</a>
 									</div>
 								</div>
 								<!-- My Account Tab Menu End -->
@@ -407,6 +407,25 @@
 	<script src="js/main.js"></script>
 
 	<script src="js/my-account.js"></script>
+	<script>
+		document.getElementById('logout-link')?.addEventListener('click', async (e)=>{
+		  e.preventDefault();
+		  const refreshToken = localStorage.getItem('refreshToken');
+		  try{
+			if(refreshToken){
+			  await fetch('http://localhost:5282/api/Account/Logout', {
+				method:'POST',
+				headers:{'Content-Type':'application/json'},
+				body: JSON.stringify({ refreshToken })
+			  });
+			}
+		  }catch(err){ console.warn('Logout API error', err); }
+		  // Dù sao cũng clear token phía FE
+		  localStorage.removeItem('accessToken');
+		  localStorage.removeItem('refreshToken');
+		  window.location.href = 'login.html';
+		});
+		</script>
 </body>
 
 <!-- Mirrored from htmldemo.net/koparion/koparion/my-account.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Oct 2025 09:10:48 GMT -->
