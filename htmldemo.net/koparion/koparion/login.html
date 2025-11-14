@@ -261,29 +261,21 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     console.log("API response:", data);
 
     if (data.succeeded && data.data?.accessToken) {
+
       localStorage.setItem("accessToken", data.data.accessToken);
       localStorage.setItem("refreshToken", data.data.refreshToken);
+
 	  localStorage.setItem("token", data.data.accessToken);
 
-      // 👉 Kiểm tra role từ token, nếu là Admin → vào thẳng admin.html
-      const payload = (function parseJwt(token) {
-        try { 
-          const b64 = token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
-          return JSON.parse(decodeURIComponent(escape(atob(b64))));
-        } catch { return null; }
-      })(data.data.accessToken);
 
-      const role = payload?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] 
-                || payload?.role 
-                || payload?.roles;
+  // 👉 Dùng quyết định từ backend, không cần parse token nữa
+  const redirectUrl = data.data.redirectUrl || (data.data.isAdmin ? "admin.html" : "index.html");
 
-      const isAdmin = Array.isArray(role) ? role.includes("Admin") : role === "Admin";
-
-      alert("Đăng nhập thành công!");
-      window.location.href = isAdmin ? "admin.html" : "index.html";
-    } else {
-      alert(data.message || "Sai tài khoản hoặc mật khẩu!");
-    }
+  alert("Đăng nhập thành công!");
+  window.location.href = redirectUrl;
+} else {
+  alert(data.message || "Sai tài khoản hoặc mật khẩu!");
+}
   } catch (err) {
     console.error(err);
     alert("Không thể kết nối tới máy chủ. Vui lòng kiểm tra lại backend.");
