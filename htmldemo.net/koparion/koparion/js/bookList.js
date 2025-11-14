@@ -314,6 +314,201 @@ async function loadUpsellProducts(containerId, limit = 4) {
     }
 }
 
+function renderRandomBooks(containerId, books) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = books.map(book => `
+        <div class="product-wrapper" style="width:65%; display:inline-block; vertical-align:top; margin:5px;">
+            <div class="product-img">
+                <a href="product-details.html?id=${book.id || book.Id}">
+                    <img src="${book.thumbnailUrl || 'img/product/19.jpg'}" 
+                         alt="${book.title}" class="primary" 
+                         style="width:65%; height:auto; object-fit:cover;" />
+                </a>
+            </div>
+
+            <div class="product-details text-center mt-2">
+                <h5 style="font-size:0.8em;">
+                    <a href="product-details.html?id=${book.id || book.Id}" 
+                       style="text-decoration:none; color:#333;">
+                        ${book.title}
+                    </a>
+                </h5>
+                <p style="font-size: 0.7em; color: #777;">by ${book.author || 'Unknown'}</p>
+                <div class="product-price">
+                    <ul><li style="font-size:0.8em;">$${book.price || book.Price}</li></ul>
+                </div>
+            </div>
+        </div>
+    `).join("");
+}
+
+// --- Hàm load sách ngẫu nhiên từ API ---
+async function loadRandomBooks(containerId, limit = 4) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = "<p>Loading random books...</p>";
+
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
+
+        const data = await response.json();
+        const books = data.data || data;
+
+        if (!Array.isArray(books) || books.length === 0) {
+            container.innerHTML = "<p>No books found.</p>";
+            return;
+        }
+
+        // Chọn ngẫu nhiên 'limit' cuốn sách
+        const shuffled = books.sort(() => 0.5 - Math.random());
+        const randomBooks = shuffled.slice(0, limit);
+
+        renderRandomBooks(containerId, randomBooks);
+
+        // Nếu muốn carousel, có thể khởi tạo Owl Carousel ở đây
+        if ($(container).hasClass('owl-carousel')) {
+            $(container).owlCarousel({
+                loop: true,
+                margin: 10,
+                nav: true,
+                dots: false,
+                responsive: {
+                    0: { items: 1 },
+                    576: { items: 2 },
+                    768: { items: 3 },
+                    992: { items: 4 }
+                }
+            });
+        }
+
+    } catch (error) {
+        console.error("Error loading random books:", error);
+        container.innerHTML = `<p style="color:red;">Cannot load random books.</p>`;
+    }
+}
+
+// --- Hàm 9: Render sách với ảnh + sao + tên + giá ---
+const pageSizeGrid = 12; // mỗi trang 12 sách
+let allFeaturedBooks = [];
+let currentPageGrid = 1;
+
+async function loadBooksWithStars(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = "<p>Loading books...</p>";
+
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
+
+        const data = await response.json();
+        allFeaturedBooks = data.data || [];
+
+        if (!Array.isArray(allFeaturedBooks) || allFeaturedBooks.length === 0) {
+            container.innerHTML = "<p>No books found.</p>";
+            return;
+        }
+
+        displayPageGrid(containerId, 1); // hiển thị trang 1
+    } catch (error) {
+        console.error("Error loading books with stars:", error);
+        container.innerHTML = `<p style="color:red;">Cannot load books.</p>`;
+    }
+}
+
+function displayPageGrid(containerId, pageNumber) {
+    currentPageGrid = pageNumber;
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+
+    const startIndex = (pageNumber - 1) * pageSizeGrid;
+    const endIndex = Math.min(startIndex + pageSizeGrid, allFeaturedBooks.length);
+    const booksForPage = allFeaturedBooks.slice(startIndex, endIndex);
+
+    // chia thành hàng 4 cuốn
+    for (let i = 0; i < booksForPage.length; i += 4) {
+        const rowBooks = booksForPage.slice(i, i + 4);
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "row mb-30";
+
+        rowDiv.innerHTML = rowBooks.map(book => `
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                <div class="product-wrapper mb-40">
+                    <div class="product-img">
+                        <a href="product-details.html?id=${book.id || book.Id}">
+                            <img src="${book.thumbnailUrl || 'img/product/19.jpg'}" 
+                                 alt="${book.title}" class="primary" style="width:100%; height:auto; object-fit:cover;" />
+                        </a>
+                    </div>
+                    <div class="product-details text-center">
+                        <div class="product-rating">
+                            <ul>
+                                <li><a href="#"><i class="fa fa-star"></i></a></li>
+                                <li><a href="#"><i class="fa fa-star"></i></a></li>
+                                <li><a href="#"><i class="fa fa-star"></i></a></li>
+                                <li><a href="#"><i class="fa fa-star"></i></a></li>
+                                <li><a href="#"><i class="fa fa-star"></i></a></li>
+                            </ul>
+                        </div>
+                        <h4><a href="product-details.html?id=${book.id || book.Id}">${book.title}</a></h4>
+                        <div class="product-price"><ul><li>$${book.price || book.Price}</li></ul></div>
+                    </div>
+                </div>
+            </div>
+        `).join("");
+
+        container.appendChild(rowDiv);
+    }
+
+    renderPaginationGrid(containerId);
+}
+
+// --- Render phân trang cho Grid ---
+function renderPaginationGrid(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const paginationContainer = document.getElementById("pagination-links");
+    if (!paginationContainer) return;
+
+    const totalPages = Math.ceil(allFeaturedBooks.length / pageSizeGrid);
+    let linksHtml = "";
+
+    if (currentPageGrid > 1)
+        linksHtml += `<li><a href="#" data-page="${currentPageGrid - 1}" class="angle"><i class="fa fa-angle-left"></i></a></li>`;
+
+    for (let i = 1; i <= totalPages; i++)
+        linksHtml += `<li><a href="#" class="${i === currentPageGrid ? 'active' : ''}" data-page="${i}">${i}</a></li>`;
+
+    if (currentPageGrid < totalPages)
+        linksHtml += `<li><a href="#" data-page="${currentPageGrid + 1}" class="angle"><i class="fa fa-angle-right"></i></a></li>`;
+
+    paginationContainer.innerHTML = linksHtml;
+
+    // gán sự kiện click cho phân trang
+    paginationContainer.querySelectorAll("a[data-page]").forEach(link => {
+        link.addEventListener("click", e => {
+            e.preventDefault();
+            const page = parseInt(link.getAttribute("data-page"));
+            displayPageGrid(containerId, page);
+            container.scrollIntoView({ behavior: "smooth" });
+        });
+    });
+
+    // cập nhật summary
+    const summaryEl = document.getElementById("pagination-summary");
+    if (summaryEl) {
+        const startItem = (currentPageGrid - 1) * pageSizeGrid + 1;
+        const endItem = Math.min(currentPageGrid * pageSizeGrid, allFeaturedBooks.length);
+        summaryEl.textContent = `Items ${startItem}-${endItem} of ${allFeaturedBooks.length}`;
+    }
+}
+
 function initOnSaleCarousel() {
     $("#on-sale").owlCarousel({
         margin: 20,
@@ -328,4 +523,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadSimpleBooks("related-books", 4);
     loadOnSale("on-sale-audio", 12);
     loadUpsellProducts("upsell-products", 4);
+    loadRandomBooks("random-books", 3);
+    loadBooksWithStars("featured-books");
 });

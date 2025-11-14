@@ -1,0 +1,27 @@
+<!-- sidebar.html -->
+<aside class="offcanvas offcanvas-start offcanvas-lg" tabindex="-1" id="sidebar"
+        aria-labelledby="sidebarLabel" data-bs-scroll="true" data-bs-backdrop="false">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="sidebarLabel">
+      <i class="bi bi-speedometer2 me-2 text-warning"></i>Admin Menu
+    </h5>
+    <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <nav class="nav flex-column gap-1">
+      <a id="nav-dashboard" class="nav-link" href="admin.html"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+      <div class="mt-2 mb-1 small text-uppercase text-muted">Manage</div>
+      <a id="nav-books" class="nav-link" href="admin-book.html"><i class="bi bi-book"></i> Books</a>
+      <a id="nav-users" class="nav-link" href="admin-users.html"><i class="bi bi-people"></i> Users</a>
+      <a id="nav-orders" class="nav-link" href="admin-orders.html"><i class="bi bi-bag-check"></i> Orders</a>
+      <a id="nav-categories" class="nav-link" href="admin-category.html"><i class="bi bi-tags"></i> Categories</a>
+      <!-- <a id="nav-reviews" class="nav-link" href="admin-reviews.html"><i class="bi bi-chat-dots"></i> Reviews</a> -->
+
+      <div class="mt-3 mb-1 small text-uppercase text-muted">Analytics</div>
+      <a id="nav-deleted" class="nav-link" href="#deleted-section"><i class="bi bi-archive"></i> Deleted / Restore</a>
+
+      <div class="mt-3 mb-1 small text-uppercase text-muted">System</div>
+      <a class="nav-link" href="login.html" id="logout-link"><i class="bi bi-box-arrow-right"></i> Sign out</a>
+    </nav>
+  </div>
+</aside>
