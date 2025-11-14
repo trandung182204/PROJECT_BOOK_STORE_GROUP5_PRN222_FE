@@ -40,45 +40,46 @@ async function renewToken() {
   }
 }
 
-// Hàm check signIn
-document.addEventListener("DOMContentLoaded", function () {
-    const accessToken = localStorage.getItem("accessToken");
-    const menu = document.getElementById("accountMenu");
-    let signInItem = document.getElementById("signInItem");
-    let accountItem = document.getElementById("accountItem");
+// Dùng code này NẾU bạn đổi id="signInItem" thành class="signInItem"
+function checkSignIn() {
+  const accessToken = localStorage.getItem("accessToken");
+  
+  // 1. Tìm TẤT CẢ các menu
+  const menus = document.querySelectorAll(".accountMenu"); 
 
-    // Nếu đã đăng nhập
+  if (!menus.length) {
+    console.error("Không tìm thấy phần tử nào với class .accountMenu");
+    return;
+  }
+
+  // 2. Lặp qua từng menu để cập nhật
+  menus.forEach(menu => {
+    let signInItem = menu.querySelector(".signInItem"); // Tìm class
+    let logoutItem = menu.querySelector(".logoutItem"); 
+
     if (accessToken) {
-        // Ẩn Sign in
-        if (signInItem) signInItem.remove();
-
-        // Thêm nút Logout nếu chưa có
-        if (!document.getElementById("logoutItem")) {
-            const li = document.createElement("li");
-            li.id = "logoutItem";
-            li.innerHTML = `<a href="#" onclick="logout()">Logout</a>`;
-            menu.appendChild(li);
-        }
-
-        // Chỉ còn một item → CSS có thể bỏ dấu |
-        menu.classList.add("only-one");
-
+      if (signInItem) {
+        signInItem.remove();
+      }
+      if (!logoutItem) {
+        const li = document.createElement("li");
+        li.classList.add("logoutItem");
+        li.innerHTML = `<a href="#" onclick="logout()">Logout</a>`;
+        menu.appendChild(li);
+      }
     } else {
-        // Chưa đăng nhập → hiển thị Sign in nếu chưa có
-        if (!signInItem) {
-            const li = document.createElement("li");
-            li.id = "signInItem";
-            li.innerHTML = `<a href="login.html">Sign in</a>`;
-            menu.appendChild(li);
-        }
-
-        // Xóa Logout nếu có
-        const logoutItem = document.getElementById("logoutItem");
-        if (logoutItem) logoutItem.remove();
-
-        menu.classList.remove("only-one");
+      if (logoutItem) {
+        logoutItem.remove();
+      }
+      if (!signInItem) {
+        const li = document.createElement("li");
+        li.classList.add("signInItem");
+        li.innerHTML = `<a href="login.html">Sign in</a>`;
+        menu.appendChild(li);
+      }
     }
-});
+  });
+}
 
 // 🔒 Hàm fetch có xác thực (tự động renew khi 401)
 async function fetchWithAccount(url, options = {}) {
@@ -87,7 +88,7 @@ async function fetchWithAccount(url, options = {}) {
   const res = await fetch(url, {
     ...options,
     headers: {
-      "Authorization": `Bearer ${token}`, // ✅ đã sửa ở đây
+      "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json",
       ...options.headers,
     },
@@ -97,6 +98,7 @@ async function fetchWithAccount(url, options = {}) {
   if (res.status === 401) {
     console.log("⚠️ Access token hết hạn → làm mới...");
     await renewToken();
+    // Sau khi làm mới, gọi lại hàm fetch với token mới (đã được lưu trong localStorage)
     return fetchWithAccount(url, options);
   }
 
@@ -120,6 +122,8 @@ async function logout() {
       alert("👋 Đăng xuất thành công!");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
+      // Cập nhật lại UI ngay lập tức và chuyển trang
+      checkSignIn();
       window.location.href = "login.html";
     } else {
       alert("❌ Đăng xuất thất bại: " + (data.message || "Unknown error"));
