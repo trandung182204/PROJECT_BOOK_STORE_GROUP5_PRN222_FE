@@ -20,8 +20,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Gán dữ liệu vào HTML
         document.getElementById("book-title").textContent = book.title || "Không có tiêu đề";
+        document.getElementById("book-author").textContent = book.author || "Unknown";
         document.getElementById("book-status").textContent = book.status || "Unknown";
-        document.getElementById("book-code").textContent = book.code || "-";
+        // document.getElementById("book-code").textContent = book.code || "-";
         document.getElementById("book-price").textContent = book.price ? `$${book.price}` : "Liên hệ";
         document.getElementById("book-discount").textContent = book.discountPrice ? `$${book.discountPrice}` : "";
         document.getElementById("book-description").textContent = book.description || "Không có mô tả.";
