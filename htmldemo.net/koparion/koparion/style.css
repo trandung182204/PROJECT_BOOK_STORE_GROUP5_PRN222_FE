@@ -685,6 +685,20 @@ body {
     width: 30px;
 }
 
+#accountMenu li {
+    display: inline-block;
+}
+
+#accountMenu li + li:before {
+    content: "|";
+    padding: 0 10px;
+}
+
+/* Khi chỉ còn 1 mục (đăng nhập) → bỏ dấu | */
+#accountMenu.only-one li:before {
+    content: "";
+}
+
 .mini-cart-sub {
     position: absolute;
     background-color: #fff;

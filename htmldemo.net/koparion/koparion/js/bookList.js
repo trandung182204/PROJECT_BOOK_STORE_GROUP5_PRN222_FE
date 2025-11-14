@@ -177,13 +177,6 @@ function renderOnSale(containerId, books) {
                          alt="${book.title}" class="primary" />
                 </a>
 
-                <div class="quick-view">
-                    <a class="action-view" href="#" data-bs-target="#productModal" 
-                       data-bs-toggle="modal" title="Quick View">
-                        <i class="fa fa-search-plus"></i>
-                    </a>
-                </div>
-
                 <div class="product-flag">
                     <ul>
                         <li><span class="sale">new</span></li>
@@ -215,11 +208,6 @@ function renderOnSale(containerId, books) {
             </div>
 
             <div class="product-link">
-                <div class="product-button">
-                    <a href="#" title="Add to cart">
-                        <i class="fa fa-shopping-cart"></i>Add to cart
-                    </a>
-                </div>
                 <div class="add-to-link">
                     <ul>
                         <li>
@@ -275,13 +263,6 @@ function renderUpsellProducts(containerId, books) {
                          alt="${book.title}" class="primary" />
                 </a>
 
-                <div class="quick-view">
-                    <a class="action-view" href="#" data-bs-target="#productModal" 
-                       data-bs-toggle="modal" title="Quick View">
-                        <i class="fa fa-search-plus"></i>
-                    </a>
-                </div>
-
                 <div class="product-flag">
                     <ul>
                         <li><span class="sale">new</span></li>
@@ -304,11 +285,6 @@ function renderUpsellProducts(containerId, books) {
             </div>
 
             <div class="product-link">
-                <div class="product-button">
-                    <a href="#" title="Add to cart">
-                        <i class="fa fa-shopping-cart"></i>Add to cart
-                    </a>
-                </div>
                 <div class="add-to-link">
                     <ul>
                         <li>
