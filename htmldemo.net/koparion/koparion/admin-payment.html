@@ -274,65 +274,8 @@
 
     <div class="admin-wrap">
       <!-- SIDEBAR -->
-      <aside
-        class="offcanvas offcanvas-start offcanvas-lg"
-        tabindex="-1"
-        id="sidebar"
-        aria-labelledby="sidebarLabel"
-        data-bs-scroll="true"
-        data-bs-backdrop="false"
-      >
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="sidebarLabel">
-            <i class="bi bi-speedometer2 me-2 text-warning"></i>Admin Menu
-          </h5>
-          <button
-            type="button"
-            class="btn-close d-lg-none"
-            data-bs-dismiss="offcanvas"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="offcanvas-body">
-          <nav class="nav flex-column gap-1">
-            <a id="nav-dashboard" class="nav-link active" href="admin.html"
-              ><i class="bi bi-grid-1x2"></i> Dashboard</a
-            >
-            <div class="mt-2 mb-1 small text-uppercase text-muted">Manage</div>
-            <a id="nav-books" class="nav-link" href="admin-books.html"
-              ><i class="bi bi-book"></i> Books</a
-            >
-            <a id="nav-users" class="nav-link" href="admin-users.html"
-              ><i class="bi bi-people"></i> Users</a
-            >
-            <a id="nav-orders" class="nav-link" href="admin-orders.html"
-              ><i class="bi bi-bag-check"></i> Orders</a
-            >
-            <a id="nav-categories" class="nav-link" href="admin-categories.html"
-              ><i class="bi bi-tags"></i> Categories</a
-            >
-            <a id="nav-reviews" class="nav-link" href="admin-reviews.html"
-              ><i class="bi bi-chat-dots"></i> Reviews</a
-            >
-            <div class="mt-3 mb-1 small text-uppercase text-muted">
-              Analytics
-            </div>
-            <a id="nav-reports" class="nav-link" href="admin-payment.html"
-              ><i class="bi bi-graph-up"></i> Reports</a
-            >
-            <a id="nav-deleted" class="nav-link" href="#deleted-section"
-              ><i class="bi bi-archive"></i> Deleted / Restore</a
-            >
-            <div class="mt-3 mb-1 small text-uppercase text-muted">System</div>
-            <a id="nav-settings" class="nav-link" href="admin-settings.html"
-              ><i class="bi bi-gear"></i> Settings</a
-            >
-            <a class="nav-link" href="login.html" id="logout-link"
-              ><i class="bi bi-box-arrow-right"></i> Sign out</a
-            >
-          </nav>
-        </div>
-      </aside>
+      <div id="sidebar-container"></div>
+      <!-- CONTENT -->
       <main class="content container-fluid">
         <section class="mb-5">
           <div class="kop-card card">
@@ -464,8 +407,60 @@
       loadPayment();
     </script>
     <script>
+      /* ------- Sidebar active ------- */
+      (function setActiveNav() {
+        const id = `nav-${CURRENT_PAGE}`;
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        document
+          .querySelectorAll("#sidebar .nav-link")
+          .forEach((a) => a.classList.remove("active"));
+        el.classList.add("active");
+      })();
+      async function loadSidebar() {
+        const container = document.getElementById("sidebar-container");
+        if (!container) return;
+
+        try {
+          const res = await fetch("sidebar.html");
+          const html = await res.text();
+          container.innerHTML = html;
+
+          // Sau khi nhét HTML sidebar -> set active menu
+          setActiveNav();
+
+          // Gắn logout
+          const logoutLink = document.getElementById("logout-link");
+          if (logoutLink) {
+            logoutLink.addEventListener("click", async (e) => {
+              e.preventDefault();
+              const refreshToken = localStorage.getItem("refreshToken");
+              try {
+                if (refreshToken) {
+                  await fetch("http://localhost:5282/api/Account/Logout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ refreshToken }),
+                  });
+                }
+              } catch (err) {
+                console.warn("Logout API error", err);
+              }
+              localStorage.removeItem("accessToken");
+              localStorage.removeItem("refreshToken");
+              window.location.href = "login.html";
+            });
+          }
+        } catch (e) {
+          console.error("Load sidebar error", e);
+        }
+      }
+    </script>
+    <script>
       // Guard vào trang admin
       (function guardAdminPage() {
+        loadSidebar();
         const token = localStorage.getItem("accessToken");
         if (!token) {
           location.href = "login.html";
