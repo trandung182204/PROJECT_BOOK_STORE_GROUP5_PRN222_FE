@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xin Cảm Ơn!</title>
+    
+    <meta http-equiv="refresh" content="5; url=index.html">
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px 60px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+        }
+        .icon {
+            font-size: 50px;
+            color: #28a745; /* Màu xanh lá cho thành công */
+        }
+        h1 {
+            font-size: 2.2em;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.1em;
+            color: #555;
+        }
+        .redirect-message {
+            font-size: 0.95em;
+            color: #777;
+            margin-top: 25px;
+        }
+        #countdown {
+            font-weight: bold;
+            color: #dc3545; /* Màu đỏ cho đồng hồ đếm ngược */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="icon">&#10004;</div>
+        
+        <h1>Cảm ơn bạn đã đặt hàng!</h1>
+        <p>Đơn hàng của bạn đã được đặt thành công.</p>
+        
+        <p class="redirect-message">
+            Bạn sẽ được chuyển về trang chủ trong 
+            <strong id="countdown">5</strong> giây...
+        </p>
+    </div>
+
+    <script>
+        (function() {
+            let countdownElement = document.getElementById('countdown');
+            let seconds = 5;
+
+            // Cập nhật đồng hồ mỗi giây
+            let interval = setInterval(function() {
+                seconds--;
+                if (countdownElement) {
+                    countdownElement.textContent = seconds;
+                }
+                
+                // Khi hết giờ, chuyển hướng
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    window.location.href = 'index.html';
+                }
+            }, 1000); // 1000ms = 1 giây
+        })();
+    </script>
+
+</body>
+</html>
